@@ -1,14 +1,22 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import Layout from "./components/layout";
-import Home from "./pages/Home/home";
+import Home from "./pages/Dashboard/home";
 import Templates from "./pages/Templates/main";
 import UseCase from "./pages/useCase/main";
 import Questionare from "./pages/quetionare/main";
 import Projects from "./pages/Projects/main";
+import NotFound from "./components/notFound";
 import ProjectView from "./pages/Projects/projectView";
 import UserManagement from "./pages/UserManagement/main";
 import ChatAgent from "./pages/ChatAgent/main";
+import ControlAssessment from "./pages/CyberSecurity Management/Control Assessment";
+import AIRiskAssessment from "./pages/AI System/AI_Risk_Assessment";
+import AIPolicy from "./pages/AI System/AIPolicy";
+import AIRegulatoryAssessment from "./pages/AI System/AIRegulatoryAssessment";
+import Reports from "./pages/Reports/main";
+import TrustCenterDocuments from "./pages/Trust Center/Documents";
+import TrustCenterInsight from "./pages/Trust Center/Insights";
 
 function App() {
   return (
@@ -22,20 +30,22 @@ function App() {
             <Route path="questionare" element={<Questionare/>}/>
             <Route path="projects" element={<Projects/>}/>
             <Route path="project-view" element={<ProjectView/>}/>
+            <Route path="reports" element={<Reports/>}/>
             <Route path="users" element={<UserManagement />} />
             <Route path="chat" element={<ChatAgent />} />
             <Route path="ai-inventory" element={<PlaceholderPage title="AI Inventory" />} />
-            <Route path="ai-risk-assessment-unics" element={<PlaceholderPage title="AI Risk Assessment (Unicis)" />} />
+            <Route path="ai-risk-assessment" element={<AIRiskAssessment/>} />
             <Route path="ai-control-assessment" element={<PlaceholderPage title="AI Control Assessment" />} />
-            <Route path="ai-regulatory-compliance-trustible" element={<PlaceholderPage title="AI Regulatory Compliance (Trustible)" />} />
+            <Route path="ai-policy" element={<AIPolicy/>} />
+            <Route path="ai-regulatory-assessment" element={<AIRegulatoryAssessment/>} />
 
             <Route path="cyber-risk-assessment" element={<PlaceholderPage title="Cyber Risk Assessment" />} />
-            <Route path="cyber-control-assessment" element={<PlaceholderPage title="Cyber Control Assessment" />} />
+            <Route path="cyber-control-assessment" element={<ControlAssessment/>} />
             <Route path="cyber-risk-manager-anectdotes" element={<PlaceholderPage title="Cyber Risk Manager (Anectdotes)" />} />
 
-            <Route path="documents" element={<PlaceholderPage title="Trust Center: Documents" />} />
-            <Route path="insights" element={<PlaceholderPage title="Trust Center: Insights" />} />
-
+            <Route path="documents" element={<TrustCenterDocuments/>} />
+            <Route path="insights" element={<TrustCenterInsight/>} />
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       </Router>

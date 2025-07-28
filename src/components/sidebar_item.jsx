@@ -36,7 +36,7 @@ const SidebarItem = ({ icon, label, to, open, subItems }) => {
       <div
         role="button"
         tabIndex={0}
-        className={`flex items-center space-x-3 px-4 py-2 rounded-md transition duration-200 cursor-pointer ${
+        className={`flex w-full text-sm text-white/80 hover:bg-white/10 items-center space-x-3 px-4 py-2 rounded-md transition duration-200 cursor-pointer hover:bg-accent hover:text-accent-foreground${
           (location.pathname === mainTo || isSubItemActive)
             ? "bg-white text-[#1d4ed8] font-semibold"
             : "hover:bg-[#3b6ef3] hover:text-white text-white"
@@ -73,7 +73,7 @@ const SidebarItem = ({ icon, label, to, open, subItems }) => {
       {/* Sub Items Dropdown (Custom in DOM, not portal) */}
       {subItems && (
         <div
-          className={`absolute -right-[80%] -translate-y-[50%]  mt-1 w-[200px] bg-white rounded-lg shadow-xl border border-blue-100 overflow-hidden transition-all duration-200 origin-top ${
+          className={`absolute right-[76%] -translate-y-[50%]  mt-1 w-[200px] bg-white rounded-lg shadow-xl border border-blue-100 overflow-hidden transition-all duration-200 origin-top ${
             isDropdownOpen ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 pointer-events-none"
           }`}
           style={{ transformOrigin: "top" }}
