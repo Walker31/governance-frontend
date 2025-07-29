@@ -50,7 +50,7 @@ const ProjectView = () => {
             '& .MuiTabs-indicator': { backgroundColor: '#10b981' }
           }}
         >
-          {tabLabels.map((label, idx) => (
+          {tabLabels.map((label) => (
             <Tab key={label} label={label} />
           ))}
         </Tabs>

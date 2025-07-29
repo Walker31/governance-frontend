@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -51,6 +52,7 @@ import {
 } from "lucide-react";
 
 const Reports = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
 
   // Sample data for charts
@@ -656,7 +658,11 @@ const Reports = () => {
                         </TableCell>
                         <TableCell>{getStatusBadge(asset.status)}</TableCell>
                         <TableCell>
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => navigate(`/ai-inventory/${asset.id}`)}
+                          >
                             <Eye className="w-4 h-4" />
                           </Button>
                         </TableCell>

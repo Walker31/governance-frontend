@@ -81,20 +81,7 @@ const RiskAnalysis = () => {
     }
   };
 
-  const getTrendIcon = (trend) => {
-    switch (trend) {
-      case 'up':
-        return <ArrowUp className="w-4 h-4 text-red-500" />;
-      case 'down':
-        return <ArrowDown className="w-4 h-4 text-green-500" />;
-      case 'stable':
-        return <Minus className="w-4 h-4 text-yellow-500" />;
-      case 'target':
-        return <Target className="w-4 h-4 text-blue-500" />;
-      default:
-        return null;
-    }
-  };
+
 
   const inherentRiskDetails = [
     {

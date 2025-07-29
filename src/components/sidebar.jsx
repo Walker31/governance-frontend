@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
-const Sidebar = ({ open, onToggle }) => {
+const Sidebar = ({ open }) => {
   const { isAdmin } = useAuth();
 
   return (

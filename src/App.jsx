@@ -14,12 +14,15 @@ import ControlAssessment from "./pages/CyberSecurity Management/Control Assessme
 import AIRiskAssessment from "./pages/AI System/AI_Risk_Assessment";
 import AIPolicy from "./pages/AI System/AIPolicy";
 import AIRegulatoryAssessment from "./pages/AI System/AIRegulatoryAssessment";
+import AIInventory from "./pages/AI System/AIInventory";
+import AssetDetail from "./pages/AI System/AssetDetail";
 import Reports from "./pages/Reports/main";
 import TrustCenterDocuments from "./pages/Trust Center/Documents";
 import TrustCenterInsight from "./pages/Trust Center/Insights";
 import Demo from "./pages/Demo/Demo";
 import RiskAssessment from "./pages/CyberSecurity Management/Risk Assessment/RiskAssessment";
 import RiskAnalysis from "./pages/CyberSecurity Management/Risk Manager/RiskManager";
+import ThirdPartyAssessment from "./pages/ThirdPartyAssessment/main";
 
 function App() {
   return (
@@ -37,7 +40,8 @@ function App() {
             <Route path="users" element={<UserManagement />} />
             <Route path="chat" element={<ChatAgent />} />
             <Route path="demo" element={<Demo />} />
-            <Route path="ai-inventory" element={<PlaceholderPage title="AI Inventory" />} />
+            <Route path="ai-inventory" element={<AIInventory />} />
+            <Route path="ai-inventory/:assetId" element={<AssetDetail />} />
             <Route path="ai-risk-assessment" element={<AIRiskAssessment/>} />
             <Route path="ai-control-assessment" element={<PlaceholderPage title="AI Control Assessment" />} />
             <Route path="ai-policy" element={<AIPolicy/>} />
@@ -46,6 +50,8 @@ function App() {
             <Route path="cyber-risk-assessment" element={<RiskAssessment />} />
             <Route path="cyber-control-assessment" element={<ControlAssessment/>} />
             <Route path="cyber-risk-manager" element={<RiskAnalysis/>} />
+
+            <Route path="3passessements" element={<ThirdPartyAssessment/>} />
 
             <Route path="documents" element={<TrustCenterDocuments/>} />
             <Route path="insights" element={<TrustCenterInsight/>} />

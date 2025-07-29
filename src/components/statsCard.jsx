@@ -1,5 +1,6 @@
-import {Card, CardContent} from '../components/ui/card.jsx';
+import {Card, CardContent} from '@/components/ui/card';
 
+// eslint-disable-next-line no-unused-vars
 const StatsCard = ({ title, value, icon: Icon, variant }) => {
   const variantStyles = {
     danger: "text-red-600",

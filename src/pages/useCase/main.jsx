@@ -21,7 +21,7 @@ const UseCase = () => {
     return () => clearTimeout(timer);
   },[selected,navigate]);
 
-  const UseCaseCard = ({ type, icon, title, description, bgColor, color }) => (
+  const UseCaseCard = ({ type, icon, title, description, bgColor }) => (
     <div
       onClick={() => setSelected(type)}
       className={`flex flex-col border rounded-xl p-4 gap-4 cursor-pointer w-1/2 
