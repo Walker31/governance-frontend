@@ -1,5 +1,4 @@
 @import "tailwindcss";
-/* Definition of the design system. All colors must be RGB values. */
 
 @layer base {
   :root {
@@ -80,15 +79,5 @@
     --sidebar-accent-foreground: 210 20% 98%;
     --sidebar-border: 224 39% 12%;
     --sidebar-ring: 221 83% 53%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
   }
 }

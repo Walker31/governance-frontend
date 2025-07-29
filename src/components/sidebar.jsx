@@ -75,7 +75,7 @@ const Sidebar = ({ open, onToggle }) => {
             { label: "Control Assessment", to: "/cyber-control-assessment" },
             {
               label: "Risk Manager",
-              to: "/cyber-risk-manager-anectdotes",
+              to: "/cyber-risk-manager",
             },
           ]}
         />

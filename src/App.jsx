@@ -17,6 +17,9 @@ import AIRegulatoryAssessment from "./pages/AI System/AIRegulatoryAssessment";
 import Reports from "./pages/Reports/main";
 import TrustCenterDocuments from "./pages/Trust Center/Documents";
 import TrustCenterInsight from "./pages/Trust Center/Insights";
+import Demo from "./pages/Demo/Demo";
+import RiskAssessment from "./pages/CyberSecurity Management/Risk Assessment/RiskAssessment";
+import RiskAnalysis from "./pages/CyberSecurity Management/Risk Manager/RiskManager";
 
 function App() {
   return (
@@ -33,15 +36,16 @@ function App() {
             <Route path="reports" element={<Reports/>}/>
             <Route path="users" element={<UserManagement />} />
             <Route path="chat" element={<ChatAgent />} />
+            <Route path="demo" element={<Demo />} />
             <Route path="ai-inventory" element={<PlaceholderPage title="AI Inventory" />} />
             <Route path="ai-risk-assessment" element={<AIRiskAssessment/>} />
             <Route path="ai-control-assessment" element={<PlaceholderPage title="AI Control Assessment" />} />
             <Route path="ai-policy" element={<AIPolicy/>} />
             <Route path="ai-regulatory-assessment" element={<AIRegulatoryAssessment/>} />
 
-            <Route path="cyber-risk-assessment" element={<PlaceholderPage title="Cyber Risk Assessment" />} />
+            <Route path="cyber-risk-assessment" element={<RiskAssessment />} />
             <Route path="cyber-control-assessment" element={<ControlAssessment/>} />
-            <Route path="cyber-risk-manager-anectdotes" element={<PlaceholderPage title="Cyber Risk Manager (Anectdotes)" />} />
+            <Route path="cyber-risk-manager" element={<RiskAnalysis/>} />
 
             <Route path="documents" element={<TrustCenterDocuments/>} />
             <Route path="insights" element={<TrustCenterInsight/>} />

@@ -73,7 +73,7 @@ const SidebarItem = ({ icon, label, to, open, subItems }) => {
       {/* Sub Items Dropdown (Custom in DOM, not portal) */}
       {subItems && (
         <div
-          className={`absolute right-[76%] -translate-y-[50%]  mt-1 w-[200px] bg-white rounded-lg shadow-xl border border-blue-100 overflow-hidden transition-all duration-200 origin-top ${
+          className={`absolute right-[76%] -translate-y-[50%]  mt-1 w-[200px] bg-slate-800 rounded-lg shadow-xl border border-blue-100 overflow-hidden transition-all duration-200 origin-top ${
             isDropdownOpen ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 pointer-events-none"
           }`}
           style={{ transformOrigin: "top" }}
@@ -89,8 +89,8 @@ const SidebarItem = ({ icon, label, to, open, subItems }) => {
                 }}
                 className={`px-5 py-2 text-sm font-medium cursor-pointer transition-colors ${
                   isActive
-                    ? "bg-blue-100 text-blue-800"
-                    : "hover:bg-blue-50 text-[#1d4ed8] hover:text-blue-900"
+                    ? "bg-slate-500 text-white/80"
+                    : "hover:bg-slate-700 text-white hover:text-white/90"
                 }`}
               >
                 {item.label}
