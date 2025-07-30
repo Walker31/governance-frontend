@@ -77,6 +77,7 @@ const Sidebar = ({ open }) => {
               label: "Risk Manager",
               to: "/cyber-risk-manager",
             },
+            { label: 'Risk Analysis', to: '/cyber-risk-analysis'}
           ]}
         />
         {/* Existing entries */}

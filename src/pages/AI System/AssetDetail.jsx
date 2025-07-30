@@ -19,10 +19,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   ArrowLeft,
   Database,
@@ -76,7 +88,8 @@ const AssetDetail = () => {
         category: "Operational Risk",
         severity: "Medium",
         status: "Open",
-        description: "Call center agents lack proper training on AI system usage",
+        description:
+          "Call center agents lack proper training on AI system usage",
         impact: "Medium",
         probability: "High",
         mitigation: "Implement comprehensive training program",
@@ -104,11 +117,23 @@ const AssetDetail = () => {
   const getRiskBadge = (risk) => {
     switch (risk) {
       case "High":
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">High Risk</Badge>;
+        return (
+          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+            High Risk
+          </Badge>
+        );
       case "Medium":
-        return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Medium Risk</Badge>;
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+            Medium Risk
+          </Badge>
+        );
       case "Low":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Low Risk</Badge>;
+        return (
+          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+            Low Risk
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{risk}</Badge>;
     }
@@ -117,11 +142,23 @@ const AssetDetail = () => {
   const getStatusBadge = (status) => {
     switch (status) {
       case "Active":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Active</Badge>;
+        return (
+          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+            Active
+          </Badge>
+        );
       case "Under Review":
-        return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Under Review</Badge>;
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+            Under Review
+          </Badge>
+        );
       case "Inactive":
-        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">Inactive</Badge>;
+        return (
+          <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+            Inactive
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -168,7 +205,10 @@ const AssetDetail = () => {
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">Compliance:</span>
                   <div className="flex items-center gap-2">
-                    <Progress value={assetData.compliance} className="w-16 h-2" />
+                    <Progress
+                      value={assetData.compliance}
+                      className="w-16 h-2"
+                    />
                     <span className="text-sm">{assetData.compliance}%</span>
                   </div>
                 </div>
@@ -201,57 +241,108 @@ const AssetDetail = () => {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5" />
-                    Key Performance Metrics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-4 border rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">{assetData.overview.totalCalls.toLocaleString()}</div>
-                      <div className="text-sm text-muted-foreground">Total Calls</div>
-                    </div>
-                    <div className="text-center p-4 border rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">{assetData.overview.successRate}%</div>
-                      <div className="text-sm text-muted-foreground">Success Rate</div>
-                    </div>
-                    <div className="text-center p-4 border rounded-lg">
-                      <div className="text-2xl font-bold text-purple-600">{assetData.overview.avgResponseTime}</div>
-                      <div className="text-sm text-muted-foreground">Avg Response Time</div>
-                    </div>
-                    <div className="text-center p-4 border rounded-lg">
-                      <div className="text-2xl font-bold text-orange-600">{assetData.overview.customerSatisfaction}/5</div>
-                      <div className="text-sm text-muted-foreground">Customer Satisfaction</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="flex flex-col gap-4">
+              {/* Section Title */}
+              <div className="text-3xl">Basic Information</div>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="w-5 h-5" />
-                    Adopted Frameworks
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {assetData.frameworks.map((framework, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          <span className="font-medium">{framework}</span>
-                        </div>
-                        <Badge className="bg-green-100 text-green-800">Compliant</Badge>
-                      </div>
-                    ))}
+              {/* Main Info Row */}
+              <div className="flex">
+                {/* Left: Basic Info */}
+                <div className="flex-[3_3_0%] space-y-4">
+                  <div>
+                    <div>Use Case Name</div>
+                    <div className="text-xl font-bold">{assetData.name}</div>
                   </div>
-                </CardContent>
-              </Card>
+
+                  <div>
+                    <div>Brief Description</div>
+                    <div className="text-xl font-bold">
+                      {assetData.description}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div>Use Case Owner</div>
+                    <div className="text-xl font-bold">John Doe</div>
+                  </div>
+
+                  <div>
+                    <div>Use Case Team</div>
+                    <div className="text-xl font-bold">Zephyr</div>
+                  </div>
+                </div>
+
+                {/* Right: Status Box */}
+                <div className="flex-[1_1_0%] border-2 h-max p-2 rounded-md bg-white shadow-sm">
+                  <div className="flex flex-col gap-1 m-2">
+                    <div>Current Status</div>
+                    <div className="ml-1 font-bold">Live</div>
+                  </div>
+
+                  <div className="flex flex-col gap-1 m-2">
+                    <div>Type</div>
+                    <div className="ml-1 font-bold">External</div>
+                  </div>
+
+                  <div className="flex flex-col gap-1 m-2">
+                    <div>Overall Risk Level</div>
+                    <div className="ml-1 font-bold">Normal</div>
+                  </div>
+
+                  <div className="flex flex-col gap-1 m-2">
+                    <div>Use Case Codename</div>
+                    <div className="ml-1 font-bold">Live</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Frameworks Section */}
+              <div className="mt-8">
+                <div className="text-2xl font-semibold mb-4">Frameworks</div>
+                <div className="text-lg font-medium text-gray-600 mb-2">
+                  Enabled (4)
+                </div>
+
+                <div className="space-y-4">
+                  {/* Framework Cards */}
+                  <div className="p-4 border rounded bg-gray-50">
+                    <div className="text-pink-700 font-semibold">
+                      NIST AI RMF
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      National Institute of Standards and Technology Artificial
+                      Intelligence Risk Management Framework
+                    </div>
+                  </div>
+
+                  <div className="p-4 border rounded bg-gray-50">
+                    <div className="text-pink-700 font-semibold">EU AI Act</div>
+                    <div className="text-sm text-gray-600">
+                      European Artificial Intelligence Act
+                    </div>
+                  </div>
+
+                  <div className="p-4 border rounded bg-gray-50">
+                    <div className="text-pink-700 font-semibold">
+                      Colorado Life Insurance Regulation
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Governance and RMF Requirements for ECDIS, Algorithms, and
+                      Predictive Models
+                    </div>
+                  </div>
+
+                  <div className="p-4 border rounded bg-gray-50">
+                    <div className="text-pink-700 font-semibold">
+                      ISO 42001 Standard
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      ISO Standard for implementing and maintaining Artificial
+                      Intelligence Management Systems
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </TabsContent>
 
@@ -282,30 +373,59 @@ const AssetDetail = () => {
                       </DialogHeader>
                       <div className="grid gap-4 py-4">
                         <div className="grid gap-2">
-                          <label htmlFor="title" className="text-sm font-medium">Risk Title</label>
+                          <label
+                            htmlFor="title"
+                            className="text-sm font-medium"
+                          >
+                            Risk Title
+                          </label>
                           <Input id="title" placeholder="Enter risk title" />
                         </div>
                         <div className="grid gap-2">
-                          <label htmlFor="category" className="text-sm font-medium">Category</label>
+                          <label
+                            htmlFor="category"
+                            className="text-sm font-medium"
+                          >
+                            Category
+                          </label>
                           <Select>
                             <SelectTrigger>
                               <SelectValue placeholder="Select category" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="operational">Operational Risk</SelectItem>
-                              <SelectItem value="compliance">Compliance Risk</SelectItem>
-                              <SelectItem value="technical">Technical Risk</SelectItem>
-                              <SelectItem value="security">Security Risk</SelectItem>
+                              <SelectItem value="operational">
+                                Operational Risk
+                              </SelectItem>
+                              <SelectItem value="compliance">
+                                Compliance Risk
+                              </SelectItem>
+                              <SelectItem value="technical">
+                                Technical Risk
+                              </SelectItem>
+                              <SelectItem value="security">
+                                Security Risk
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
                         <div className="grid gap-2">
-                          <label htmlFor="description" className="text-sm font-medium">Description</label>
-                          <Textarea id="description" placeholder="Describe the risk" />
+                          <label
+                            htmlFor="description"
+                            className="text-sm font-medium"
+                          >
+                            Description
+                          </label>
+                          <Textarea
+                            id="description"
+                            placeholder="Describe the risk"
+                          />
                         </div>
                       </div>
                       <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={() => setIsAddRiskOpen(false)}>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsAddRiskOpen(false)}
+                        >
                           Cancel
                         </Button>
                         <Button onClick={() => setIsAddRiskOpen(false)}>
@@ -328,7 +448,13 @@ const AssetDetail = () => {
                             <Badge className="bg-yellow-100 text-yellow-800">
                               {risk.severity} Severity
                             </Badge>
-                            <Badge className={risk.status === "Resolved" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}>
+                            <Badge
+                              className={
+                                risk.status === "Resolved"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-yellow-100 text-yellow-800"
+                              }
+                            >
                               {risk.status}
                             </Badge>
                           </div>
@@ -342,34 +468,51 @@ const AssetDetail = () => {
                           </Button>
                         </div>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-3">{risk.description}</p>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        {risk.description}
+                      </p>
                       <div className="grid grid-cols-2 gap-4 mb-3">
                         <div>
-                          <span className="text-xs text-muted-foreground">Impact:</span>
+                          <span className="text-xs text-muted-foreground">
+                            Impact:
+                          </span>
                           <div className="font-medium">{risk.impact}</div>
                         </div>
                         <div>
-                          <span className="text-xs text-muted-foreground">Probability:</span>
+                          <span className="text-xs text-muted-foreground">
+                            Probability:
+                          </span>
                           <div className="font-medium">{risk.probability}</div>
                         </div>
                         <div>
-                          <span className="text-xs text-muted-foreground">Assigned To:</span>
+                          <span className="text-xs text-muted-foreground">
+                            Assigned To:
+                          </span>
                           <div className="font-medium">{risk.assignedTo}</div>
                         </div>
                         <div>
-                          <span className="text-xs text-muted-foreground">Due Date:</span>
+                          <span className="text-xs text-muted-foreground">
+                            Due Date:
+                          </span>
                           <div className="font-medium">{risk.dueDate}</div>
                         </div>
                       </div>
                       <div className="mb-3">
                         <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs text-muted-foreground">Mitigation Progress</span>
-                          <span className="text-xs font-medium">{risk.progress}%</span>
+                          <span className="text-xs text-muted-foreground">
+                            Mitigation Progress
+                          </span>
+                          <span className="text-xs font-medium">
+                            {risk.progress}%
+                          </span>
                         </div>
                         <Progress value={risk.progress} className="h-2" />
                       </div>
                       <div className="text-sm">
-                        <span className="text-muted-foreground">Mitigation:</span> {risk.mitigation}
+                        <span className="text-muted-foreground">
+                          Mitigation:
+                        </span>{" "}
+                        {risk.mitigation}
                       </div>
                     </div>
                   ))}
@@ -388,7 +531,9 @@ const AssetDetail = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Documentation content will be displayed here.</p>
+                <p className="text-muted-foreground">
+                  Documentation content will be displayed here.
+                </p>
               </CardContent>
             </Card>
           </TabsContent>
@@ -402,7 +547,9 @@ const AssetDetail = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Related assets will be displayed here.</p>
+                <p className="text-muted-foreground">
+                  Related assets will be displayed here.
+                </p>
               </CardContent>
             </Card>
           </TabsContent>
@@ -416,7 +563,9 @@ const AssetDetail = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Business benefits will be displayed here.</p>
+                <p className="text-muted-foreground">
+                  Business benefits will be displayed here.
+                </p>
               </CardContent>
             </Card>
           </TabsContent>
@@ -430,7 +579,9 @@ const AssetDetail = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Workflows will be displayed here.</p>
+                <p className="text-muted-foreground">
+                  Workflows will be displayed here.
+                </p>
               </CardContent>
             </Card>
           </TabsContent>
@@ -444,7 +595,9 @@ const AssetDetail = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Reports will be displayed here.</p>
+                <p className="text-muted-foreground">
+                  Reports will be displayed here.
+                </p>
               </CardContent>
             </Card>
           </TabsContent>
@@ -454,4 +607,4 @@ const AssetDetail = () => {
   );
 };
 
-export default AssetDetail; 
+export default AssetDetail;

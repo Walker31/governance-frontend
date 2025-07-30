@@ -21,8 +21,9 @@ import TrustCenterDocuments from "./pages/Trust Center/Documents";
 import TrustCenterInsight from "./pages/Trust Center/Insights";
 import Demo from "./pages/Demo/Demo";
 import RiskAssessment from "./pages/CyberSecurity Management/Risk Assessment/RiskAssessment";
-import RiskAnalysis from "./pages/CyberSecurity Management/Risk Manager/RiskManager";
+import RiskAnalysis from "./pages/CyberSecurity Management/RiskAnalysis";
 import ThirdPartyAssessment from "./pages/ThirdPartyAssessment/main";
+import RiskManager from "./pages/CyberSecurity Management/Risk Manager/RiskManager";
 
 function App() {
   return (
@@ -49,7 +50,8 @@ function App() {
 
             <Route path="cyber-risk-assessment" element={<RiskAssessment />} />
             <Route path="cyber-control-assessment" element={<ControlAssessment/>} />
-            <Route path="cyber-risk-manager" element={<RiskAnalysis/>} />
+            <Route path="cyber-risk-manager" element={<RiskManager/>} />
+            <Route path="cyber-risk-analysis" element={<RiskAnalysis/>} />
 
             <Route path="3passessements" element={<ThirdPartyAssessment/>} />
 
