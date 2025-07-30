@@ -13,10 +13,8 @@ const ChatAgent = () => {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [sessionId, setSessionId] = useState(null);
-  const [currentQuestion, setCurrentQuestion] = useState(null);
   const [isFinished, setIsFinished] = useState(false);
   const [error, setError] = useState(null);
-  const [questionnaireSummary, setQuestionnaireSummary] = useState(null);
   const [riskAnalysis, setRiskAnalysis] = useState(null);
   const [isAnalyzingRisks, setIsAnalyzingRisks] = useState(false);
   const [showRiskAnalysis, setShowRiskAnalysis] = useState(false);
@@ -44,7 +42,6 @@ const ChatAgent = () => {
       const response = await chatAgentService.startChat();
       
       setSessionId(response.session_id);
-      setCurrentQuestion(response.question);
       
       // Add initial AI message
       const initialMessage = {
@@ -84,7 +81,6 @@ const ChatAgent = () => {
       if (response.finished) {
         // Chat is finished, show summary
         setIsFinished(true);
-        setQuestionnaireSummary(response.summary);
         
         const summaryMessage = {
           id: Date.now() + 1,
@@ -99,7 +95,7 @@ const ChatAgent = () => {
         await performRiskAnalysis(response.summary);
       } else {
         // Continue with next question
-        setCurrentQuestion(response.question);
+
         const aiMessage = {
           id: Date.now() + 1,
           text: response.question,
@@ -218,10 +214,8 @@ const ChatAgent = () => {
     setMessages([]);
     setInputValue('');
     setSessionId(null);
-    setCurrentQuestion(null);
     setIsFinished(false);
     setError(null);
-    setQuestionnaireSummary(null);
     setRiskAnalysis(null);
     setShowRiskAnalysis(false);
     setIsAnalyzingRisks(false);

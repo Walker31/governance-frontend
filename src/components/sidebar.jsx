@@ -1,62 +1,135 @@
-import { FaHome, FaBars } from "react-icons/fa";
 import SidebarItem from "./sidebar_item";
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import AutoAwesomeMotionIcon from '@mui/icons-material/AutoAwesomeMotion';
-import FolderIcon from '@mui/icons-material/Folder';
-import PeopleIcon from '@mui/icons-material/People';
-import ChatIcon from '@mui/icons-material/Chat';
+import AutoAwesomeMotionIcon from "@mui/icons-material/AutoAwesomeMotion";
+import FolderIcon from "@mui/icons-material/Folder";
+import PeopleIcon from "@mui/icons-material/People";
+import ChatIcon from "@mui/icons-material/Chat";
+import {
+  ChevronDown,
+  Shield,
+  Play,
+  Home,
+  BarChart3,
+  FolderOpen,
+  AlertTriangle,
+  ClipboardList,
+  FileText,
+  Users,
+  Clock,
+  Files,
+  Heart,
+  HelpCircle,
+  Settings,
+} from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
-const Sidebar = ({ open, onToggle }) => {
+const Sidebar = ({ open }) => {
   const { isAdmin } = useAuth();
 
   return (
     <aside
       className={`
-        h-full bg-[#1d4ed8] text-white flex flex-col py-6 px-2 shadow-md
+        h-full bg-slate-800 min-h-screen text-white flex flex-col py-6 px-2 shadow-md
         transition-all duration-300 overflow-y-auto
       `}
     >
-      {/* Toggle Button */}
-      <button
-        className="mb-6 p-2 rounded hover:bg-[#3b6ef3] transition self-center"
-        onClick={onToggle}
-        aria-label={open ? "Close sidebar" : "Open sidebar"}
-      >
-        <FaBars size={22} />
-      </button>
+      <div className="flex items-center gap-2 mb-8">
+        <img src="/logo.png" alt="RAKfort Logo" className="w-8 h-8" />
+        <div>
+          <h1 className="text-lg font-bold">RAKFORT</h1>
+          <p className="text-xs text-white/70">AI Governance & Security</p>
+        </div>
+      </div>
 
       <nav className="flex flex-col space-y-2">
-        <SidebarItem icon={<FaHome />} label="Dashboard" to="/" open={open} />
+        <SidebarItem icon={<Play />} label="Demo" to="/demo" open={open} />
+        <SidebarItem icon={<Home />} label="Dashboard" to="/" open={open} />
 
         {/* AI Section */}
         <SidebarItem
-          icon={<AutoAwesomeMotionIcon />}
-          label="AI"
+          icon={<BarChart3 />}
+          label="AI System"
           to="#"
           open={open}
           subItems={[
-            { label: "AI Inventory (No agent)", to: "/ai-inventory" },
-            { label: "AI Risk Assessment (Unicis)", to: "/ai-risk-assessment-unics" },
+            { label: "AI Inventory", to: "/ai-inventory" },
+            {
+              label: "AI Risk Assessment",
+              to: "/ai-risk-assessment",
+            },
             { label: "AI Control Assessment", to: "/ai-control-assessment" },
-            { label: "AI Regulatory Compliance (Trustible)", to: "/ai-regulatory-compliance-trustible" },
+            { label: "AI Policy", to: "/ai-policy" },
+            {
+              label: "AI Regulatory Assessment",
+              to: "/ai-regulatory-assessment",
+            },
           ]}
         />
 
         <SidebarItem
-          icon={<AssessmentIcon />}
-          label="Cyber Management"
+          icon={<Clock />}
+          label="Cybersecurity Management"
           to="#"
           open={open}
           subItems={[
             { label: "Risk Assessment", to: "/cyber-risk-assessment" },
             { label: "Control Assessment", to: "/cyber-control-assessment" },
-            { label: "Risk Manager (Anectdotes)", to: "/cyber-risk-manager-anectdotes" },
+            {
+              label: "Risk Manager",
+              to: "/cyber-risk-manager",
+            },
+            { label: 'Risk Analysis', to: '/cyber-risk-analysis'}
           ]}
+        />
+        {/* Existing entries */}
+        <SidebarItem
+          icon={<AutoAwesomeMotionIcon />}
+          label="Projects"
+          to="/projects"
+          open={open}
         />
 
         <SidebarItem
-          icon={<FolderIcon />}
+          icon={<Users />}
+          label="Third-Party Assessment"
+          to="/3passessements"
+          open={open}
+        />
+
+        <SidebarItem
+          icon={<ClipboardList />}
+          label="Template Builder"
+          to="/templates"
+          open={open}
+        />
+
+        <SidebarItem
+          icon={<Files />}
+          label="Reports"
+          to="/reports"
+          open={open}
+        />
+        <SidebarItem icon={<ChatIcon />} label="Chat" to="/chat" open={open} />
+
+        {/* Admin-only section */}
+        {isAdmin() && (
+          <>
+            <div
+              className={`border-t border-white/20 my-2 ${
+                open ? "mx-4" : "mx-2"
+              }`}
+            />
+            <SidebarItem
+              icon={<PeopleIcon />}
+              label="User Management"
+              to="/users"
+              open={open}
+            />
+          </>
+        )}
+        <div className="border-t border-white/20 my-2"></div>
+
+        <SidebarItem
+          icon={<Heart />}
           label="Trust Center"
           to="#"
           open={open}
@@ -65,24 +138,19 @@ const Sidebar = ({ open, onToggle }) => {
             { label: "Insights", to: "/insights" },
           ]}
         />
-
-        {/* Existing entries */}
         <SidebarItem
-          icon={<AutoAwesomeMotionIcon />}
-          label="Projects"
-          to="/projects"
+          icon={<HelpCircle />}
+          label="Support"
+          to="/support"
           open={open}
         />
-        <SidebarItem icon={<FolderIcon />} label="Template Builder" to="/templates" open={open} />
-        <SidebarItem icon={<ChatIcon />} label="Chat" to="/chat" open={open} />
 
-        {/* Admin-only section */}
-        {isAdmin() && (
-          <>
-            <div className={`border-t border-white/20 my-2 ${open ? 'mx-4' : 'mx-2'}`} />
-            <SidebarItem icon={<PeopleIcon />} label="User Management" to="/users" open={open} />
-          </>
-        )}
+        <SidebarItem
+          icon={<Settings />}
+          label="Settings"
+          to="/settings"
+          open={open}
+        />
       </nav>
     </aside>
   );
