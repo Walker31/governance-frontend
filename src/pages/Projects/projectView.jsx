@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -27,6 +28,7 @@ function TabPanel({ value, index, children }) {
 }
 
 const ProjectView = () => {
+  const { projectId } = useParams();
   const [tab, setTab] = React.useState(0);
 
   const handleChange = (event, newValue) => {
@@ -61,7 +63,7 @@ const ProjectView = () => {
       </TabPanel>
       <TabPanel value={tab} index={1}>
         {/* Project risks Content */}
-        <ProjectRisks/>
+        <ProjectRisks projectId={projectId}/>
       </TabPanel>
       <TabPanel value={tab} index={2}>
         {/* Frameworks Content */}

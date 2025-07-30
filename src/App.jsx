@@ -36,7 +36,7 @@ function App() {
             <Route path="usecase" element={<UseCase/>} />
             <Route path="questionare" element={<Questionare/>}/>
             <Route path="projects" element={<Projects/>}/>
-            <Route path="project-view" element={<ProjectView/>}/>
+            <Route path="project-view/:projectId?" element={<ProjectView/>}/>
             <Route path="reports" element={<Reports/>}/>
             <Route path="users" element={<UserManagement />} />
             <Route path="chat" element={<ChatAgent />} />

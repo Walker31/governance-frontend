@@ -144,7 +144,7 @@ const Projects = () => {
                 <div className="font-medium">{project.lastUpdated}</div>
               </div>
             </div>
-            <Button variant="outlined" onClick={() => {navigate('/project-view')}} fullWidth>
+            <Button variant="outlined" onClick={() => {navigate('/project-view/507f1f77bcf86cd799439011')}} fullWidth>
               View project
             </Button>
           </div>

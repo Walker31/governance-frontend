@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'http://localhost:3001';
 
 // Create axios instance
 const api = axios.create({
@@ -59,6 +59,8 @@ class AuthService {
       // Store token in localStorage
       if (response.data.data?.token) {
         localStorage.setItem('token', response.data.data.token);
+      } else if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
       }
 
       return response.data;

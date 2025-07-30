@@ -65,11 +65,12 @@ export const AuthProvider = ({ children }) => {
 
         if (token && savedUser) {
           // Verify token with backend
-          const response = await authService.getProfile();
-          const userWithPermissions = {
-            ...response.data.user,
-            permissions: ROLE_PERMISSIONS[response.data.user.role] || []
-          };
+                  const response = await authService.getProfile();
+        const userData = response.data?.user || response.data?.data?.user;
+        const userWithPermissions = {
+          ...userData,
+          permissions: ROLE_PERMISSIONS[userData.role] || []
+        };
           setUser(userWithPermissions);
           localStorage.setItem('user', JSON.stringify(userWithPermissions));
         } else if (token) {
@@ -91,9 +92,10 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const response = await authService.login(credentials);
+      const userData = response.data?.user || response.data?.data?.user;
       const userWithPermissions = {
-        ...response.data.user,
-        permissions: ROLE_PERMISSIONS[response.data.user.role] || []
+        ...userData,
+        permissions: ROLE_PERMISSIONS[userData.role] || []
       };
       setUser(userWithPermissions);
       localStorage.setItem('user', JSON.stringify(userWithPermissions));
@@ -107,9 +109,10 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await authService.register(userData);
+      const userData = response.data?.user || response.data?.data?.user;
       const userWithPermissions = {
-        ...response.data.user,
-        permissions: ROLE_PERMISSIONS[response.data.user.role] || []
+        ...userData,
+        permissions: ROLE_PERMISSIONS[userData.role] || []
       };
       setUser(userWithPermissions);
       localStorage.setItem('user', JSON.stringify(userWithPermissions));
@@ -128,9 +131,10 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = async (profileData) => {
     try {
       const response = await authService.updateProfile(profileData);
+      const userData = response.data?.user || response.data?.data?.user;
       const userWithPermissions = {
-        ...response.data.user,
-        permissions: ROLE_PERMISSIONS[response.data.user.role] || []
+        ...userData,
+        permissions: ROLE_PERMISSIONS[userData.role] || []
       };
       setUser(userWithPermissions);
       localStorage.setItem('user', JSON.stringify(userWithPermissions));

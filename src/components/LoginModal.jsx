@@ -11,7 +11,7 @@ const LoginModal = ({ isOpen, onClose }) => {
 
   const { login } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -21,17 +21,20 @@ const LoginModal = ({ isOpen, onClose }) => {
       return;
     }
 
-    // Mock login - in real app, this would be an API call
-    const mockUser = {
-      id: Date.now(),
-      email: formData.email,
-      name: formData.email.split('@')[0], // Use email prefix as name
-      role: formData.role,
-      avatar: `https://ui-avatars.com/api/?name=${formData.email.split('@')[0]}&background=random`
-    };  
+    try {
+      const result = await login({
+        email: formData.email,
+        password: formData.password
+      });
 
-    login(mockUser);
-    onClose();
+      if (result.success) {
+        onClose();
+      } else {
+        setError(result.error || 'Login failed');
+      }
+    } catch (error) {
+      setError(error.message || 'Login failed');
+    }
   };
 
   const handleInputChange = (e) => {
