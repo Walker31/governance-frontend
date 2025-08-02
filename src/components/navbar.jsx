@@ -69,7 +69,7 @@ const Navbar = () => {
           {/* Actions */}
           <Box className="flex items-center gap-3">
             <Button
-              onClick={() => navigate("/usecase")}
+              onClick={() => navigate("/questionare")}
               variant="contained"
               startIcon={<AddIcon />}
               className="!bg-[#1d4ed8] !text-white !font-semibold !shadow-none hover:!bg-[#2563eb] transition-all duration-200"

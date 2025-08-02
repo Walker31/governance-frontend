@@ -6,6 +6,7 @@ import { IconButton } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { BACKEND_URL, config } from '@/config/env';
 
 const UseCase = () => {
   const [selected, setSelected] = useState('bot');
@@ -15,7 +16,7 @@ const UseCase = () => {
     let timer;
     if(selected ==='human'){
       timer = setTimeout(()=>{
-        navigate('/questionare');
+        navigate('/questionare', { state: { useCaseType: selected } });
       },2000)
     }
     return () => clearTimeout(timer);

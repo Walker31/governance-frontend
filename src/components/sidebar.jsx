@@ -95,19 +95,6 @@ const Sidebar = ({ open }) => {
           open={open}
         />
 
-        <SidebarItem
-          icon={<ClipboardList />}
-          label="Template Builder"
-          to="/templates"
-          open={open}
-        />
-
-        <SidebarItem
-          icon={<Files />}
-          label="Reports"
-          to="/reports"
-          open={open}
-        />
         <SidebarItem icon={<ChatIcon />} label="Chat" to="/chat" open={open} />
 
         {/* Admin-only section */}
@@ -117,6 +104,18 @@ const Sidebar = ({ open }) => {
               className={`border-t border-white/20 my-2 ${
                 open ? "mx-4" : "mx-2"
               }`}
+            />
+            <SidebarItem
+              icon={<ClipboardList />}
+              label="Template Builder"
+              to="/templates"
+              open={open}
+            />
+            <SidebarItem
+              icon={<Files />}
+              label="Reports"
+              to="/reports"
+              open={open}
             />
             <SidebarItem
               icon={<PeopleIcon />}

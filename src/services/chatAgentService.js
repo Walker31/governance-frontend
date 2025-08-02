@@ -1,9 +1,9 @@
-const CHAT_AGENT_API_URL = 'http://localhost:8000/agent/chat';
+import { getAgentApiUrl } from '@/config/env';
 
 class ChatAgentService {
   async startChat() {
     try {
-      const response = await fetch(CHAT_AGENT_API_URL, {
+      const response = await fetch(getAgentApiUrl('/agent/chat'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -27,7 +27,7 @@ class ChatAgentService {
 
   async sendMessage(sessionId, answer) {
     try {
-      const response = await fetch(CHAT_AGENT_API_URL, {
+      const response = await fetch(getAgentApiUrl('/agent/chat'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ class ChatAgentService {
 
   async getRiskAnalysis(data) {
     try {
-      const response = await fetch('http://localhost:8000/agent/risk-matrix/', {
+      const response = await fetch(getAgentApiUrl('/agent/risk-matrix/'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

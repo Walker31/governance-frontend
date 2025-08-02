@@ -15,21 +15,36 @@ import {
   FormControl,
   Select,
   InputLabel,
-  Box
+  Box,
+  CircularProgress,
+  Alert,
+  Tooltip
 } from '@mui/material';
 import QuestionItem from './questionItem';
 import OptionEditor from './optionEditor';
 import { defaultQuestions, QUESTION_TYPES } from '../../constants/questions';
+import { DEFAULT_PROJECT_ID } from '../../constants/projectDefaults';
 import { nanoid } from 'nanoid';
+import questionnaireService from '../../services/questionnaireService';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Questionnaire = () => {
   const [questions, setQuestions] = useState(defaultQuestions);
   const [editDialog, setEditDialog] = useState({ open: false, index: null });
   const [addDialog, setAddDialog] = useState(false);
   const [responses, setResponses] = useState({});
-    const handleResponseChange = (id, value) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const useCaseType = location.state?.useCaseType || 'human';
+  const { user, isAdmin } = useAuth();
+  
+  const handleResponseChange = (id, value) => {
     setResponses((prev) => ({ ...prev, [id]: value }));
-    };
+  };
 
   const [editData, setEditData] = useState({});
   const [newQuestion, setNewQuestion] = useState({
@@ -37,25 +52,44 @@ const Questionnaire = () => {
     label: '',
     options: []
   });
-  const handleSubmit = () => {
-  const yamlData = {
-    form_id: 'human_ai_usecase',
-    title: 'Human-operated AI Use Case Questionnaire',
-    questions,
-    responses
+  const handleSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      setError('');
+      setSuccess('');
+      
+      // Validate that all required questions are answered
+      const requiredQuestions = questions.filter(q => q.required !== false);
+      const unansweredQuestions = requiredQuestions.filter(q => !responses[q.id]);
+      
+      if (unansweredQuestions.length > 0) {
+        setError('Please answer all required questions before submitting.');
+        return;
+      }
+      
+      // Use default project ID for frontend submissions
+      const questionnaireData = {
+        questionnaireResponses: responses,
+        projectId: DEFAULT_PROJECT_ID,
+        useCaseType: useCaseType
+      };
+      
+      // Send to backend for processing
+      const result = await questionnaireService.processQuestionnaire(questionnaireData);
+      
+      setSuccess('Questionnaire submitted successfully! Risk analysis is being generated.');
+      
+      // Navigate to results page after a short delay
+      setTimeout(() => {
+        navigate(`/risk-matrix-results/${result.riskMatrixResult._id}`);
+      }, 2000);
+      
+    } catch (error) {
+      setError(error.message || 'Failed to submit questionnaire. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
-  const yamlText = yaml.dump(yamlData);
-  const blob = new Blob([yamlText], { type: 'text/yaml' });
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'use_case_form.yaml';
-  link.click();
-
-  URL.revokeObjectURL(url);
-};
 
   const handleEdit = (index) => {
     setEditData({ ...questions[index] });
@@ -91,14 +125,35 @@ const Questionnaire = () => {
   return (
     <div>
       <div className="flex gap-3 items-center p-4">
-        <IconButton><ArrowBackIcon sx={{ color: 'blue' }} /></IconButton>
-        <div className="font-bold text-lg flex-1">Human-operated AI Use Case Questionnaire</div>
-        <IconButton color="primary" onClick={handleAdd} aria-label="add question">
-          <AddIcon />
-        </IconButton>
+        <Tooltip title="Go back">
+          <IconButton onClick={() => navigate(-1)}>
+            <ArrowBackIcon sx={{ color: 'blue' }} />
+          </IconButton>
+        </Tooltip>
+        <div className="font-bold text-lg flex-1">
+          {isAdmin() ? 'Questionnaire Management' : 'Human-operated AI Use Case Questionnaire'}
+        </div>
+        {isAdmin() && (
+          <IconButton color="primary" onClick={handleAdd} aria-label="add question">
+            <AddIcon />
+          </IconButton>
+        )}
       </div>
 
       <div className="shadow-xl min-h-screen border-1 bg-white p-6 rounded-md mx-auto">
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+        {success && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {success}
+          </Alert>
+        )}
+        
+
+        
         {questions.map((q, idx) => (
           <QuestionItem
             key={q.id}
@@ -110,7 +165,15 @@ const Questionnaire = () => {
             />
         ))}
         <Box mt={3} display="flex" justifyContent="flex-end">
-          <Button variant="contained" color="primary" onClick={handleSubmit}>Submit</Button>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            startIcon={isSubmitting ? <CircularProgress size={20} /> : null}
+          >
+            {isSubmitting ? 'Processing...' : 'Submit'}
+          </Button>
         </Box>
       </div>
 

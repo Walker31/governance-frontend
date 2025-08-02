@@ -33,7 +33,7 @@ export const PERMISSIONS = {
   MANAGE_USERS: 'manage_users'
 };
 
-// Permission mapping for each rolec
+// Permission mapping for each role
 const ROLE_PERMISSIONS = {
   [ROLES.ADMIN]: [
     PERMISSIONS.VIEW_TEMPLATES,

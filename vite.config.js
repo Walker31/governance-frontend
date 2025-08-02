@@ -26,6 +26,12 @@ export default defineConfig(({ mode }) => ({
       "ui": path.resolve(__dirname, "./src/components/ui"),
       "lib": path.resolve(__dirname, "./src/lib"),
       "hooks": path.resolve(__dirname, "./src/hooks"),
+      "config": path.resolve(__dirname, "./src/config"),
     },
+  },
+  // Environment variables configuration
+  define: {
+    // Ensure environment variables are available in the client
+    'process.env': {}
   },
 }));

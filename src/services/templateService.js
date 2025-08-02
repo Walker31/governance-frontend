@@ -2,12 +2,11 @@
 // This service handles all template-related API calls
 
 import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:3001';
+import { getExpressApiUrl } from '@/config/env';
 
 // Create axios instance
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: getExpressApiUrl(''),
   headers: {
     'Content-Type': 'application/json',
   },

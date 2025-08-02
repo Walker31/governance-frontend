@@ -16,6 +16,7 @@ import {
   IconButton
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import { useAuth } from '../../contexts/AuthContext';
 
 const QuestionItem = ({
   q,
@@ -24,6 +25,7 @@ const QuestionItem = ({
   value,
   onChange
 }) => {
+  const { isAdmin } = useAuth();
   // For checkbox group, handle array of checked values
   const handleCheckboxChange = (option) => (event) => {
     if (event.target.checked) {
@@ -213,9 +215,11 @@ const QuestionItem = ({
         )}
       </Box>
 
-      <IconButton size="small" onClick={() => onEdit(idx)} aria-label="edit question">
-        <EditIcon fontSize="small" />
-      </IconButton>
+      {isAdmin() && (
+        <IconButton size="small" onClick={() => onEdit(idx)} aria-label="edit question">
+          <EditIcon fontSize="small" />
+        </IconButton>
+      )}
     </Box>
   );
 };
