@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { getExpressApiUrl } from '@/config/env';
+import { getBackendUrl } from '@/config/env';
 
 // Create axios instance
 const api = axios.create({
-  baseURL: getExpressApiUrl(''),
+  baseURL: getBackendUrl(''),
   headers: {
     'Content-Type': 'application/json',
   },

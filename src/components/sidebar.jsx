@@ -95,7 +95,7 @@ const Sidebar = ({ open }) => {
           open={open}
         />
 
-        <SidebarItem icon={<ChatIcon />} label="Chat" to="/chat" open={open} />
+        {/*<SidebarItem icon={<ChatIcon />} label="Chat" to="/chat" open={open} />*/}
 
         {/* Admin-only section */}
         {isAdmin() && (

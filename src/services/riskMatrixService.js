@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { DEFAULT_PROJECT_ID } from '../constants/projectDefaults';
-import { getExpressApiUrl } from '@/config/env';
+import { getBackendUrl } from '@/config/env';
 
 // Create axios instance
 const api = axios.create({
-  baseURL: getExpressApiUrl(''),
+  baseURL: getBackendUrl(''),
   headers: {
     'Content-Type': 'application/json',
   },

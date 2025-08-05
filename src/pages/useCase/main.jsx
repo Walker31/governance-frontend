@@ -5,7 +5,7 @@ import Radio from '@mui/material/Radio';
 import { IconButton } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BACKEND_URL, config } from '@/config/env';
+import { getBackendUrl } from '@/config/env';
 import templateService from '../../services/templateService';
 import QuestionItem from '../quetionare/questionItem';
 import questionnaireService from '../../services/questionnaireService';
@@ -53,13 +53,13 @@ const UseCase = () => {
       
       // First check if backend is running
       try {
-        const healthResponse = await fetch('http://localhost:3001/');
+        const healthResponse = await fetch(getBackendUrl('/'));
         const healthData = await healthResponse.json();
         console.log('Backend health check:', healthData);
         
         // Test template count
         const token = localStorage.getItem('token');
-        const countResponse = await fetch('http://localhost:3001/templates/test/count', {
+        const countResponse = await fetch(getBackendUrl('/templates/test/count'), {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
@@ -110,7 +110,7 @@ const UseCase = () => {
       
       // Test the API directly
       try {
-        const response = await fetch('http://localhost:3001/templates', {
+        const response = await fetch(getBackendUrl('/templates'), {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -466,7 +466,7 @@ const UseCase = () => {
                     <button
                       onClick={async () => {
                         try {
-                          const response = await fetch('http://localhost:3001/templates/seed', {
+                          const response = await fetch(getBackendUrl('/templates/seed'), {
                             method: 'POST',
                             headers: {
                               'Content-Type': 'application/json',

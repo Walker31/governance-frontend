@@ -12,13 +12,24 @@ The application uses the following environment files:
 
 ## Backend URL Configuration
 
-The backend URL is configured using the `VITE_BACKEND_URL` environment variable.
+The application uses two different URLs for different services:
+
+### Backend Server URL
+- **Purpose**: Express.js backend (auth, templates, risk matrix, questionnaires)
+- **Environment Variable**: `VITE_BACKEND_URL`
+- **Default**: `http://localhost:3001`
+
+### Agent URL
+- **Purpose**: AI agent functionality (chat, automated assessments)
+- **Environment Variable**: `VITE_AGENT_URL`
+- **Default**: `http://localhost:8000`
 
 ### Default Configuration
 
 ```bash
 # .env
-VITE_BACKEND_URL=http://localhost:8000
+VITE_BACKEND_URL=http://localhost:3001
+VITE_AGENT_URL=http://localhost:8000
 VITE_APP_NAME=AI Governance
 VITE_APP_VERSION=1.0.0
 ```
@@ -27,7 +38,8 @@ VITE_APP_VERSION=1.0.0
 
 ```bash
 # .env.development
-VITE_BACKEND_URL=http://localhost:8000
+VITE_BACKEND_URL=http://localhost:3001
+VITE_AGENT_URL=http://localhost:8000
 VITE_APP_NAME=AI Governance (Dev)
 ```
 
@@ -36,6 +48,7 @@ VITE_APP_NAME=AI Governance (Dev)
 ```bash
 # .env.production
 VITE_BACKEND_URL=https://your-production-backend-url.com
+VITE_AGENT_URL=https://your-production-agent-url.com
 VITE_APP_NAME=AI Governance
 ```
 
@@ -44,44 +57,65 @@ VITE_APP_NAME=AI Governance
 ### Import the configuration
 
 ```javascript
-import { BACKEND_URL, config, getApiUrl } from '@/config/env';
+import { BACKEND_URL, AGENT_URL, getBackendUrl, getAgentUrl } from '@/config/env';
 ```
 
-### Access backend URL
+### Access URLs
 
 ```javascript
-// Direct access to backend URL
-const backendUrl = BACKEND_URL;
-
-// Using the config object
-const backendUrl = config.BACKEND_URL;
+// Direct access to URLs
+const backendUrl = BACKEND_URL; // http://localhost:3001
+const agentUrl = AGENT_URL; // http://localhost:8000
 
 // Get full API URL for specific endpoint
-const apiUrl = getApiUrl('/api/users');
-// Result: http://localhost:8000/api/users
+const backendApiUrl = getBackendUrl('/templates'); // http://localhost:3001/templates
+const agentApiUrl = getAgentUrl('/agent/start-assessment'); // http://localhost:8000/agent/start-assessment
 ```
 
-### Example API call
+### Example API calls
 
 ```javascript
-import { getApiUrl } from '@/config/env';
+import { getBackendUrl, getAgentUrl } from '@/config/env';
 import axios from 'axios';
 
-const fetchUsers = async () => {
+// Backend server API call
+const fetchTemplates = async () => {
   try {
-    const response = await axios.get(getApiUrl('/api/users'));
+    const response = await axios.get(getBackendUrl('/templates'));
     return response.data;
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error('Error fetching templates:', error);
+  }
+};
+
+// Agent API call
+const startAgentAssessment = async (data) => {
+  try {
+    const response = await axios.post(getAgentUrl('/agent/start-assessment'), data);
+    return response.data;
+  } catch (error) {
+    console.error('Error starting agent assessment:', error);
   }
 };
 ```
+
+## Service Usage
+
+### Backend Services (use `getBackendUrl`)
+- **templateService.js** - Template management
+- **questionnaireService.js** - Questionnaire processing
+- **riskMatrixService.js** - Risk matrix results
+- **authService.js** - Authentication
+
+### Agent Services (use `getAgentUrl`)
+- **agentService.js** - AI agent functionality
 
 ## Environment Variables
 
 ### Available Variables
 
-- `VITE_BACKEND_URL` - Backend API URL
+- `VITE_BACKEND_URL` - Backend server URL (default: http://localhost:3001)
+- `VITE_AGENT_URL` - Agent API URL (default: http://localhost:8000)
 - `VITE_APP_NAME` - Application name
 - `VITE_APP_VERSION` - Application version
 
