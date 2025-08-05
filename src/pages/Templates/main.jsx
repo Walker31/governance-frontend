@@ -194,9 +194,16 @@ const Templates = () => {
             {selectedTemplate && !showResponseForm && (
               <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    Questions for: {selectedTemplate.name}
-                  </h2>
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      Questions for: {selectedTemplate.name}
+                    </h2>
+                    {selectedTemplate.templateType && (
+                      <span className="text-sm bg-purple-100 text-purple-800 px-2 py-1 rounded-full mt-1 inline-block">
+                        {selectedTemplate.templateType}
+                      </span>
+                    )}
+                  </div>
                   <div className="flex items-center gap-3">
                     <span className="text-sm text-gray-500">
                       {selectedTemplate.questions.length} questions

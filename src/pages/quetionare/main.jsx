@@ -1,5 +1,5 @@
 // File: Questionnaire.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
 import yaml from 'js-yaml'
@@ -30,18 +30,45 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Questionnaire = () => {
-  const [questions, setQuestions] = useState(defaultQuestions);
+  const [questions, setQuestions] = useState([]);
   const [editDialog, setEditDialog] = useState({ open: false, index: null });
   const [addDialog, setAddDialog] = useState(false);
   const [responses, setResponses] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const useCaseType = location.state?.useCaseType || 'human';
+  const useCaseData = location.state?.useCaseData || {};
+  const selectedTemplate = location.state?.selectedTemplate || null;
   const { user, isAdmin } = useAuth();
   
+  // Load questions based on template or use default
+  useEffect(() => {
+    if (selectedTemplate && selectedTemplate.questions) {
+      // Convert template questions to questionnaire format
+      const templateQuestions = selectedTemplate.questions.map((q, index) => ({
+        id: q.id || index + 1,
+        type: q.responseType === 'text' ? 'textarea' : 
+              q.responseType === 'numeric' ? 'text' :
+              q.responseType === 'mcq' ? 'radio' :
+              q.responseType === 'msq' ? 'checkbox' :
+              q.responseType === 'boolean' ? 'radio' : 'text',
+        label: q.question,
+        options: q.options || [],
+        value: q.responseType === 'checkbox' ? [] : '',
+        required: q.required !== false,
+        placeholder: q.responseType === 'text' ? 'Enter your answer...' : ''
+      }));
+      setQuestions(templateQuestions);
+    } else {
+      setQuestions(defaultQuestions);
+    }
+    setLoading(false);
+  }, [selectedTemplate]);
+
   const handleResponseChange = (id, value) => {
     setResponses((prev) => ({ ...prev, [id]: value }));
   };
@@ -52,6 +79,7 @@ const Questionnaire = () => {
     label: '',
     options: []
   });
+
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
@@ -67,9 +95,11 @@ const Questionnaire = () => {
         return;
       }
       
-      // Use default project ID for frontend submissions
+      // Combine use case data with questionnaire responses
       const questionnaireData = {
         questionnaireResponses: responses,
+        useCaseData: useCaseData,
+        selectedTemplate: selectedTemplate,
         projectId: DEFAULT_PROJECT_ID,
         useCaseType: useCaseType
       };
@@ -81,7 +111,7 @@ const Questionnaire = () => {
       
       // Navigate to results page after a short delay
       setTimeout(() => {
-        navigate(`/risk-matrix-results/${result.riskMatrixResult._id}`);
+        navigate(`/ai-risk-assessment`);
       }, 2000);
       
     } catch (error) {
@@ -122,6 +152,14 @@ const Questionnaire = () => {
     setAddDialog(false);
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <CircularProgress />
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="flex gap-3 items-center p-4">
@@ -131,7 +169,8 @@ const Questionnaire = () => {
           </IconButton>
         </Tooltip>
         <div className="font-bold text-lg flex-1">
-          {isAdmin() ? 'Questionnaire Management' : 'Human-operated AI Use Case Questionnaire'}
+          {isAdmin() ? 'Questionnaire Management' : 
+           selectedTemplate ? `${selectedTemplate.name} Assessment` : 'Human-operated AI Use Case Questionnaire'}
         </div>
         {isAdmin() && (
           <IconButton color="primary" onClick={handleAdd} aria-label="add question">
@@ -139,6 +178,27 @@ const Questionnaire = () => {
           </IconButton>
         )}
       </div>
+
+      {/* Use Case Summary */}
+      {useCaseData && Object.keys(useCaseData).length > 0 && (
+        <div className="mx-4 mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <h3 className="font-semibold text-blue-800 mb-2">Use Case Summary</h3>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="font-medium">Request Owner:</span> {useCaseData.requestOwner}
+            </div>
+            <div>
+              <span className="font-medium">Project Type:</span> {useCaseData.projectType}
+            </div>
+            <div>
+              <span className="font-medium">System Name:</span> {useCaseData.systemName}
+            </div>
+            <div>
+              <span className="font-medium">Timeline:</span> {useCaseData.startDate} to {useCaseData.endDate}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="shadow-xl min-h-screen border-1 bg-white p-6 rounded-md mx-auto">
         {error && (
@@ -151,8 +211,6 @@ const Questionnaire = () => {
             {success}
           </Alert>
         )}
-        
-
         
         {questions.map((q, idx) => (
           <QuestionItem

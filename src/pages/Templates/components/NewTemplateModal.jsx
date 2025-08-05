@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { TEMPLATE_TYPES } from '../../../constants/templates';
 
 const NewTemplateModal = ({ onClose, onCreate, responseTypes }) => {
   const [templateData, setTemplateData] = useState({
     name: '',
     description: '',
+    templateType: 'AI System',
     questions: []
   });
 
@@ -117,6 +119,23 @@ const NewTemplateModal = ({ onClose, onCreate, responseTypes }) => {
                 rows="3"
                 placeholder="Enter template description"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Template Type *
+              </label>
+              <select
+                value={templateData.templateType}
+                onChange={(e) => setTemplateData({ ...templateData, templateType: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                {TEMPLATE_TYPES.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 

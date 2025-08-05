@@ -95,7 +95,7 @@ const ControlAssessment = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>AI Governance Controls Assessment</span>
+            <span>Controls Assessment</span>
             <div className="flex gap-2">
               <Button variant="outline" size="sm">
                 <Download className="w-4 h-4 mr-2" />

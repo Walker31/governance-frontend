@@ -31,7 +31,7 @@ const ProjectRisks = ({ projectId }) => {
       
       // Update risks data
       setRisks(projectRisks.map(risk => ({
-        name: risk.sessionId || 'Risk Assessment',
+        name: risk.riskAssessmentId || risk.sessionId || 'Risk Assessment',
         owner: risk.createdBy?.name || 'Unknown',
         severity: 'Medium', // Default value
         likelihood: 'Possible', // Default value

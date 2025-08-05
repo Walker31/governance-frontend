@@ -11,9 +11,16 @@ const TemplateItem = ({ template, isSelected, onSelect, onStartResponse }) => {
     >
       <div className="p-6">
         <div className="flex justify-between items-start mb-3">
-          <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
-            {template.name}
-          </h3>
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
+              {template.name}
+            </h3>
+            {template.templateType && (
+              <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full mt-1 inline-block">
+                {template.templateType}
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
               {template.questions.length} questions

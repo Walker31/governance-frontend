@@ -12,7 +12,9 @@ const tabLabels = [
   "Overview",
   "Project risks",
   "Frameworks",
-  "Settings"
+  "Settings",
+  "Comments",
+  "Workflows"
 ];
 
 function TabPanel({ value, index, children }) {

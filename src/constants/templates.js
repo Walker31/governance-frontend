@@ -6,42 +6,99 @@ export const RESPONSE_TYPES = [
   { value: 'boolean', label: 'Boolean (Yes/No)' }
 ];
 
+export const TEMPLATE_TYPES = [
+  { value: 'AI System', label: 'AI System' },
+  { value: 'Cybersecurity Management System', label: 'Cybersecurity Management System' },
+  { value: 'Third-party AI System', label: 'Third-party AI System' },
+  { value: 'Third-party Cybersecurity System', label: 'Third-party Cybersecurity System' }
+];
+
 export const sampleTemplates = [
   {
     id: 1,
-    name: "AI Project Assessment",
-    description: "Comprehensive assessment for new AI projects",
+    name: "AI System Assessment",
+    description: "Comprehensive assessment for AI systems including regulatory compliance and risk management",
+    templateType: "AI System",
     questions: [
       {
         id: 1,
-        question: "What is the primary objective of this AI project?",
+        question: "What is the primary purpose of the AI system?",
         responseType: "text",
         required: true
       },
       {
         id: 2,
-        question: "What is the estimated budget for this project?",
-        responseType: "numeric",
-        required: true
-      },
-      {
-        id: 3,
-        question: "Which departments will be involved?",
-        responseType: "msq",
-        options: ["IT", "Legal", "HR", "Finance", "Operations", "Marketing"],
-        required: true
-      },
-      {
-        id: 4,
-        question: "Does this project involve external vendors?",
+        question: "Is the AI system considered general-purpose (e.g., GenAI, LLMs)?",
         responseType: "boolean",
         required: true
       },
       {
-        id: 5,
-        question: "What is the expected timeline for completion?",
+        id: 3,
+        question: "What type of learning model is used?",
         responseType: "mcq",
-        options: ["1-3 months", "3-6 months", "6-12 months", "12+ months"],
+        options: ["Supervised Learning", "Unsupervised Learning", "Reinforcement Learning", "Transfer Learning", "Deep Learning", "Other"],
+        required: true
+      },
+      {
+        id: 4,
+        question: "From which regions or jurisdictions will data be sourced or processed?",
+        responseType: "text",
+        required: true
+      },
+      {
+        id: 5,
+        question: "Will the system make autonomous decisions or provide recommendations?",
+        responseType: "mcq",
+        options: ["Autonomous decisions", "Provide recommendations only", "Both autonomous decisions and recommendations", "Neither"],
+        required: true
+      },
+      {
+        id: 6,
+        question: "Has a regulatory impact assessment been conducted?",
+        responseType: "text",
+        required: true
+      },
+      {
+        id: 7,
+        question: "Is there human oversight of the system's outputs?",
+        responseType: "boolean",
+        required: true
+      },
+      {
+        id: 8,
+        question: "What risk mitigation controls are in place (e.g., bias detection, anomaly alerts)?",
+        responseType: "text",
+        required: true
+      },
+      {
+        id: 9,
+        question: "Are there fallback or escalation procedures in case of system failure or unexpected behaviour?",
+        responseType: "text",
+        required: true
+      },
+      {
+        id: 10,
+        question: "Which groups or individuals are affected by this system?",
+        responseType: "msq",
+        options: ["Employees", "Customers", "Vendors", "Vulnerable populations", "General public", "Other"],
+        required: true
+      },
+      {
+        id: 11,
+        question: "Has a stakeholder impact assessment been conducted?",
+        responseType: "boolean",
+        required: true
+      },
+      {
+        id: 12,
+        question: "Are there transparency mechanisms for affected individuals (e.g., opt-out, explanation of decisions)?",
+        responseType: "text",
+        required: true
+      },
+      {
+        id: 13,
+        question: "Will the system process personal, sensitive, or biometric data?",
+        responseType: "boolean",
         required: true
       }
     ]

@@ -317,7 +317,7 @@ const AIRiskAssessment = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Session ID</TableHead>
+                    <TableHead>Risk Assessment ID</TableHead>
                     <TableHead>Summary</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Created By</TableHead>
@@ -350,7 +350,7 @@ const AIRiskAssessment = () => {
                         className="font-medium text-blue-600 cursor-pointer hover:underline"
                         onClick={() => handleRiskClick(item)}
                       >
-                        {item.sessionId?.substring(0, 8) || item._id?.substring(0, 8) || 'N/A'}
+                        {item.riskAssessmentId || item.sessionId?.substring(0, 8) || item._id?.substring(0, 8) || 'N/A'}
                       </TableCell>
                       <TableCell className="max-w-xs truncate">
                         {item.summary || 'No summary available'}
