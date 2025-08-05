@@ -16,6 +16,7 @@ import AIPolicy from "./pages/AI System/AIPolicy";
 import AIRegulatoryAssessment from "./pages/AI System/AIRegulatoryAssessment";
 import AIInventory from "./pages/AI System/AIInventory";
 import AssetDetail from "./pages/AI System/AssetDetail";
+import AIControlAssessment from "./pages/AI System/AI_Control_Assessment";
 import Reports from "./pages/Reports/main";
 import TrustCenterDocuments from "./pages/Trust Center/Documents";
 import TrustCenterInsight from "./pages/Trust Center/Insights";
@@ -44,7 +45,7 @@ function App() {
             <Route path="ai-inventory" element={<AIInventory />} />
             <Route path="ai-inventory/:assetId" element={<AssetDetail />} />
             <Route path="ai-risk-assessment" element={<AIRiskAssessment/>} />
-            <Route path="ai-control-assessment" element={<PlaceholderPage title="AI Control Assessment" />} />
+            <Route path="ai-control-assessment" element={<AIControlAssessment />} />
             <Route path="ai-policy" element={<AIPolicy/>} />
             <Route path="ai-regulatory-assessment" element={<AIRegulatoryAssessment/>} />
 
