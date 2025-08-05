@@ -73,7 +73,7 @@ const SidebarItem = ({ icon, label, to, open, subItems }) => {
       {/* Sub Items Dropdown (Custom in DOM, not portal) */}
       {subItems && (
         <div
-          className={`absolute right-[76%] -translate-y-[50%]  mt-1 w-[200px] bg-slate-800 rounded-lg shadow-xl border border-blue-100 overflow-hidden transition-all duration-200 origin-top ${
+          className={`absolute right-[73%] -translate-y-[50%]  mt-1 w-[200px] bg-slate-800 rounded-lg shadow-xl border border-blue-100 overflow-hidden transition-all duration-200 origin-top ${
             isDropdownOpen ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 pointer-events-none"
           }`}
           style={{ transformOrigin: "top" }}
