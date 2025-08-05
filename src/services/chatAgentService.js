@@ -1,9 +1,9 @@
-import { getAgentApiUrl } from '@/config/env';
+import { getAgentUrl } from '@/config/env';
 
 class ChatAgentService {
   async startChat() {
     try {
-      const response = await fetch(getAgentApiUrl('/agent/chat'), {
+      const response = await fetch(getAgentUrl('/agent/chat'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -27,7 +27,7 @@ class ChatAgentService {
 
   async sendMessage(sessionId, answer) {
     try {
-      const response = await fetch(getAgentApiUrl('/agent/chat'), {
+      const response = await fetch(getAgentUrl('/agent/chat'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ class ChatAgentService {
 
   async getRiskAnalysis(data) {
     try {
-      const response = await fetch(getAgentApiUrl('/agent/risk-matrix/'), {
+      const response = await fetch(getAgentUrl('/agent/risk-matrix/'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

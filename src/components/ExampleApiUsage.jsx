@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getApiUrl, BACKEND_URL } from '@/config/env';
+import { getBackendUrl, BACKEND_URL } from '@/config/env';
 import axios from 'axios';
 
 const ExampleApiUsage = () => {
@@ -13,8 +13,8 @@ const ExampleApiUsage = () => {
     setError(null);
     
     try {
-      // Using the getApiUrl helper function
-      const response = await axios.get(getApiUrl('/api/example'));
+      // Using the getBackendUrl helper function
+      const response = await axios.get(getBackendUrl('/api/example'));
       setData(response.data);
     } catch (err) {
       setError(err.message);
@@ -27,7 +27,7 @@ const ExampleApiUsage = () => {
   useEffect(() => {
     // Log the backend URL in development
     console.log('Backend URL:', BACKEND_URL);
-    console.log('Full API URL example:', getApiUrl('/api/example'));
+    console.log('Full API URL example:', getBackendUrl('/api/example'));
   }, []);
 
   return (
@@ -39,7 +39,7 @@ const ExampleApiUsage = () => {
           <strong>Backend URL:</strong> {BACKEND_URL}
         </p>
         <p className="text-sm text-gray-600">
-          <strong>Example API URL:</strong> {getApiUrl('/api/example')}
+          <strong>Example API URL:</strong> {getBackendUrl('/api/example')}
         </p>
       </div>
 
