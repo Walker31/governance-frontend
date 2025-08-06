@@ -41,10 +41,12 @@ const UseCase = () => {
   const loadTemplates = async () => {
     try {
       setTemplatesLoading(true);
+      console.log('=== TEMPLATE LOADING DEBUG ===');
       console.log('Loading templates...');
       
       // Check if user is authenticated
       const token = localStorage.getItem('token');
+      console.log('Authentication token found:', !!token);
       if (!token) {
         console.error('No authentication token found');
         setError('Please log in to access templates. Using fallback questions.');
@@ -53,12 +55,13 @@ const UseCase = () => {
       
       // First check if backend is running
       try {
+        console.log('Checking backend health...');
         const healthResponse = await fetch(getBackendUrl('/'));
         const healthData = await healthResponse.json();
         console.log('Backend health check:', healthData);
         
         // Test template count
-        const token = localStorage.getItem('token');
+        console.log('Testing template count endpoint...');
         const countResponse = await fetch(getBackendUrl('/templates/test/count'), {
           headers: {
             'Content-Type': 'application/json',
@@ -79,28 +82,56 @@ const UseCase = () => {
         return;
       }
       
+      console.log('Calling templateService.getTemplates()...');
       const data = await templateService.getTemplates();
-      console.log('Templates loaded:', data);
+      console.log('Raw templates data received:', data);
+      console.log('Data type:', typeof data);
+      console.log('Is array:', Array.isArray(data));
       
       // Validate template data structure
       if (Array.isArray(data)) {
-        const validTemplates = data.filter(template => 
-          template && 
-          template.templateType && 
-          Array.isArray(template.questions)
-        );
+        console.log('Data is array, validating templates...');
+        const validTemplates = data.filter(template => {
+          const isValid = template && 
+            template.templateType && 
+            Array.isArray(template.questions);
+          
+          if (!isValid) {
+            console.warn('Invalid template structure:', template);
+          }
+          
+          return isValid;
+        });
+        
+        console.log('Valid templates count:', validTemplates.length);
+        console.log('Total templates count:', data.length);
         
         if (validTemplates.length !== data.length) {
           console.warn('Some templates have invalid structure:', data);
         }
         
+        // Log each valid template for debugging
+        validTemplates.forEach((template, index) => {
+          console.log(`Valid template ${index + 1}:`, {
+            id: template.id,
+            name: template.name,
+            templateType: template.templateType,
+            questionsCount: template.questions ? template.questions.length : 0,
+            questions: template.questions ? template.questions.slice(0, 2) : [] // Log first 2 questions
+          });
+        });
+        
         setTemplates(validTemplates);
+        console.log('Templates set successfully');
       } else {
         console.error('Invalid template data format:', data);
         setError('Invalid template data received from server.');
       }
     } catch (error) {
+      console.error('=== TEMPLATE LOADING ERROR ===');
       console.error('Error loading templates:', error);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
       
       if (error.message.includes('401') || error.message.includes('Unauthorized')) {
         setError('Authentication required. Please log in to access templates.');
@@ -110,12 +141,14 @@ const UseCase = () => {
       
       // Test the API directly
       try {
+        console.log('Testing API directly...');
         const response = await fetch(getBackendUrl('/templates'), {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         });
+        console.log('Direct API response status:', response.status);
         const testData = await response.json();
         console.log('Direct API test result:', testData);
       } catch (testError) {
@@ -123,6 +156,7 @@ const UseCase = () => {
       }
     } finally {
       setTemplatesLoading(false);
+      console.log('=== END TEMPLATE LOADING DEBUG ===');
     }
   };
 
@@ -149,7 +183,11 @@ const UseCase = () => {
   };
 
   const handleSubQuestionChange = async (id, value) => {
+    console.log('=== QUESTION LOADING DEBUG ===');
     console.log('Sub question changed:', id, value);
+    console.log('Current templates state:', templates);
+    console.log('Templates loading state:', templatesLoading);
+    
     setSubQuestions(prev => 
       prev.map(q => q.id === id ? { ...q, value } : q)
     );
@@ -165,18 +203,37 @@ const UseCase = () => {
 
       const templateType = templateTypeMapping[id];
       console.log('Looking for template type:', templateType);
+      console.log('Template type mapping:', templateTypeMapping);
+      console.log('Available templates count:', templates.length);
       console.log('Available templates:', templates);
       
+      // Log each template's type for debugging
+      templates.forEach((template, index) => {
+        console.log(`Template ${index + 1}:`, {
+          id: template.id,
+          name: template.name,
+          templateType: template.templateType,
+          questionsCount: template.questions ? template.questions.length : 0
+        });
+      });
+      
       const matchingTemplate = templates.find(t => t.templateType === templateType);
-      console.log('Matching template:', matchingTemplate);
+      console.log('Matching template found:', !!matchingTemplate);
+      console.log('Matching template details:', matchingTemplate);
 
       if (matchingTemplate && matchingTemplate.questions) {
+        console.log('Template questions found:', matchingTemplate.questions.length);
+        console.log('Template questions structure:', matchingTemplate.questions);
+        
         setSelectedTemplate(matchingTemplate);
         
         // Convert template questions to questionnaire format with better error handling
         const convertedQuestions = matchingTemplate.questions.map((q, index) => {
+          console.log(`Converting question ${index + 1}:`, q);
+          
           // Handle different question field names
           const questionText = q.question || q.questionText || `Question ${index + 1}`;
+          console.log(`Question ${index + 1} text:`, questionText);
           
           // Map response types to frontend types
           let frontendType = 'text';
@@ -205,7 +262,7 @@ const UseCase = () => {
               frontendType = 'text';
           }
           
-          return {
+          const convertedQuestion = {
             id: q.id || q._id || index + 1,
             type: frontendType,
             label: questionText,
@@ -214,13 +271,24 @@ const UseCase = () => {
             required: q.required !== false && q.isRequired !== false,
             placeholder: frontendType === 'textarea' ? 'Enter your answer...' : ''
           };
+          
+          console.log(`Converted question ${index + 1}:`, convertedQuestion);
+          return convertedQuestion;
         });
         
-        console.log('Converted questions:', convertedQuestions);
+        console.log('Final converted questions:', convertedQuestions);
         setTemplateQuestions(convertedQuestions);
         setResponses({}); // Reset responses for new template
+        console.log('Template questions set successfully');
       } else {
+        console.error('=== TEMPLATE LOADING ERROR ===');
         console.error('No matching template found for type:', templateType);
+        console.error('Available template types:', templates.map(t => t.templateType));
+        console.error('Template count:', templates.length);
+        
+        if (matchingTemplate && !matchingTemplate.questions) {
+          console.error('Template found but has no questions:', matchingTemplate);
+        }
         
         // Fallback: Create a basic template with default questions
         const fallbackTemplate = {
@@ -249,6 +317,7 @@ const UseCase = () => {
           ]
         };
         
+        console.log('Using fallback template:', fallbackTemplate);
         setSelectedTemplate(fallbackTemplate);
         
         const fallbackQuestions = fallbackTemplate.questions.map((q, index) => ({
@@ -264,8 +333,10 @@ const UseCase = () => {
         console.log('Using fallback questions:', fallbackQuestions);
         setTemplateQuestions(fallbackQuestions);
         setResponses({});
+        console.log('Fallback questions set successfully');
       }
     }
+    console.log('=== END QUESTION LOADING DEBUG ===');
   };
 
   const handleResponseChange = (id, value) => {

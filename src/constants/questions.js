@@ -2,7 +2,7 @@ export const defaultQuestions = [
   {
     id: 1,
     type: 'text-country',
-    label: "Who is submitting this request?",
+    label: "Please enter your name or the name of the person for whom you are submitting this request and the country in which the request owner located?",
     fields: [
       { type: 'text', label: 'Name, role & country of the request owner', value: '' }
     ]
@@ -10,31 +10,38 @@ export const defaultQuestions = [
   {
     id: 2,
     type: 'radio',
-    label: "Is this project internal or does it involve third parties?",
+    label: "Is this project internal to our organization or does it involve any third parties?",
     options: [
-      'Internal development',
-      'Third-party Integration'
+      'Developing a product in-house',
+      'Adopting/integrating third party AI system'
     ],
     value: ''
   },
   {
     id: 3,
     type: 'text',
-    label: "What is the name of the product or system being developed or assessed?",
+    label: "From which regions do you need data for your use-case?",
     value: ''
   },
   {
     id: 4,
+    type: 'textarea',
+    label: "What is the intended purpose of your system?",
+    placeholder: "Describe the intended purpose of your system...",
+    value: ''
+  },
+  {
+    id: 5,
     type: 'date-range',
-    label: "What is the intended start and end date for this project?",
+    label: "Select a date range for when would like to start and complete the project?",
     start: '',
     end: ''
   },
   {
-    id: 5,
+    id: 6,
     type: 'textarea',
-    label: "Are there any known factors that might delay the timeline?",
-    placeholder: "Describe any potential delays...",
+    label: "Are there any factors might extend your project timeline?",
+    placeholder: "Describe any potential delays or factors that might extend the timeline...",
     value: ''
   }
 ];
@@ -48,11 +55,11 @@ export const QUESTION_TYPES = [
 
 // Template type mapping based on selection
 export const TEMPLATE_TYPE_MAPPING = {
-  'Internal development': {
+  'Developing a product in-house': {
     'AI System': 'AI System',
     'Cybersecurity Management System': 'Cybersecurity Management System'
   },
-  'Third-party Integration': {
+  'Adopting/integrating third party AI system': {
     'Third-party AI System': 'Third-party AI System',
     'Third-party Cybersecurity System': 'Third-party Cybersecurity System'
   }

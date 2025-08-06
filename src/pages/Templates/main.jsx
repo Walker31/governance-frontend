@@ -190,67 +190,6 @@ const Templates = () => {
               </div>
             )}
 
-            {/* Selected Template Questions */}
-            {selectedTemplate && !showResponseForm && (
-              <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-900">
-                      Questions for: {selectedTemplate.name}
-                    </h2>
-                    {selectedTemplate.templateType && (
-                      <span className="text-sm bg-purple-100 text-purple-800 px-2 py-1 rounded-full mt-1 inline-block">
-                        {selectedTemplate.templateType}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm text-gray-500">
-                      {selectedTemplate.questions.length} questions
-                    </span>
-                    <button
-                      onClick={() => handleStartResponse(selectedTemplate)}
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                    >
-                      Fill Out Template
-                    </button>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  {selectedTemplate.questions.map((question, index) => (
-                    <div key={question.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-medium text-gray-900">
-                          {index + 1}. {question.question}
-                        </h3>
-                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                          {RESPONSE_TYPES.find(type => type.value === question.responseType)?.label}
-                        </span>
-                      </div>
-                      {question.options && (
-                        <div className="mt-2">
-                          <p className="text-sm text-gray-600 mb-1">Options:</p>
-                          <div className="flex flex-wrap gap-2">
-                            {question.options.map((option, optIndex) => (
-                              <span
-                                key={optIndex}
-                                className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
-                              >
-                                {option}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {question.required && (
-                        <span className="text-xs text-red-600 font-medium">Required</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Template Response Form */}
             {showResponseForm && selectedTemplate && (
               <div className="mt-8">

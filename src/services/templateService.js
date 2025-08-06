@@ -46,9 +46,24 @@ class TemplateService {
   // Get all templates
   async getTemplates() {
     try {
+      console.log('=== TEMPLATE SERVICE DEBUG ===');
+      console.log('Making API call to /templates...');
+      console.log('API base URL:', api.defaults.baseURL);
+      console.log('Request headers:', api.defaults.headers);
+      
       const response = await api.get('/templates');
+      console.log('API response status:', response.status);
+      console.log('API response data:', response.data);
+      console.log('Response data type:', typeof response.data);
+      console.log('Response is array:', Array.isArray(response.data));
+      
       return response.data;
     } catch (error) {
+      console.error('=== TEMPLATE SERVICE ERROR ===');
+      console.error('API call failed:', error);
+      console.error('Error response:', error.response);
+      console.error('Error status:', error.response?.status);
+      console.error('Error data:', error.response?.data);
       throw new Error(error.response?.data?.error || 'Failed to fetch templates');
     }
   }

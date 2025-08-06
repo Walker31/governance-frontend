@@ -3,6 +3,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import Layout from "./components/layout";
 import Home from "./pages/Dashboard/home";
 import Templates from "./pages/Templates/main";
+import TemplateQuestions from "./pages/Templates/TemplateQuestions";
 import UseCase from "./pages/useCase/main";
 import Questionare from "./pages/quetionare/main";
 import Projects from "./pages/Projects/main";
@@ -34,6 +35,7 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="templates" element={<Templates />} />
+            <Route path="templates/:templateId" element={<TemplateQuestions />} />
             <Route path="usecase" element={<UseCase/>} />
             <Route path="questionare" element={<Questionare/>}/>
             <Route path="projects" element={<Projects/>}/>

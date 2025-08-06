@@ -1,5 +1,13 @@
+import { useNavigate } from 'react-router-dom';
 
 const TemplateItem = ({ template, isSelected, onSelect, onStartResponse }) => {
+  const navigate = useNavigate();
+
+  const handleViewQuestions = (e) => {
+    e.stopPropagation();
+    navigate(`/templates/${template.id}`);
+  };
+
   return (
     <div
       className={`bg-white rounded-lg shadow-sm border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
@@ -60,17 +68,11 @@ const TemplateItem = ({ template, isSelected, onSelect, onStartResponse }) => {
             <span className="text-sm text-gray-500">Template ID: {template.id}</span>
             <div className="flex gap-2">
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onStartResponse(template);
-                }}
-                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-medium transition-colors"
+                onClick={handleViewQuestions}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-medium transition-colors"
               >
-                Fill Out
+                View Questions
               </button>
-              <span className="text-sm text-blue-600 font-medium">
-                {isSelected ? 'Selected' : 'Click to view'}
-              </span>
             </div>
           </div>
         </div>
