@@ -8,7 +8,7 @@ const Home = () => {
     <main className="p-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-foreground mb-2">AI Governance Dashboard</h1>
-        <p className="text-muted-foreground">Comprehensive overview of your AI systems compliance and risk status.</p>
+        <p className="text-muted-foreground">Comprehensive overview of your systems compliance and risk status.</p>
       </div>
 
       {/* Stats Cards */}
