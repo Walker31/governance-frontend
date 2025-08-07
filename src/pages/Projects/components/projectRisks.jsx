@@ -4,8 +4,6 @@ import AddIcon from "@mui/icons-material/Add";
 import SettingsIcon from "@mui/icons-material/Settings";
 import riskMatrixService from "../../../services/riskMatrixService";
 
-
-
 const ProjectRisks = ({ projectId }) => {
   const [risks, setRisks] = useState([]);
   const [riskSummary, setRiskSummary] = useState([
@@ -26,24 +24,25 @@ const ProjectRisks = ({ projectId }) => {
   const fetchProjectRisks = async () => {
     try {
       setLoading(true);
-      const response = await riskMatrixService.getAllRiskMatrixResults({ projectId });
-      const projectRisks = response.results || [];
+      const response = await riskMatrixService.getRisksByProject(projectId);
+      const projectRisks = response.risks || [];
       
       // Update risks data
       setRisks(projectRisks.map(risk => ({
-        name: risk.riskAssessmentId || risk.sessionId || 'Risk Assessment',
-        owner: risk.createdBy?.name || 'Unknown',
-        severity: 'Medium', // Default value
+        name: risk.riskName || 'Risk Assessment',
+        owner: risk.riskOwner || 'Unknown',
+        severity: risk.severity,
         likelihood: 'Possible', // Default value
-        mitigation: risk.isActive ? 'Completed' : 'Pending',
-        status: risk.isActive ? 'Completed' : 'Requires Review',
-        riskLevel: getRiskLevelFromSummary(risk.summary),
-        riskLevelColor: getRiskLevelColor(getRiskLevelFromSummary(risk.summary)),
-        targetDate: new Date(risk.createdAt).toLocaleDateString('en-GB', { 
+        mitigation: risk.mitigation || 'No mitigation specified',
+        status: risk.isActive ? 'Active' : 'Inactive',
+        riskLevel: getRiskLevelFromSeverity(risk.severity),
+        riskLevelColor: getRiskLevelColor(getRiskLevelFromSeverity(risk.severity)),
+        targetDate: risk.targetDate ? new Date(risk.targetDate).toLocaleDateString('en-GB', { 
           day: '2-digit', 
-          month: 'long', 
+          month: '2-digit', 
           year: 'numeric' 
-        }),
+        }) : 'No target date',
+        justification: risk.justification || 'No justification provided',
       })));
 
       // Calculate risk summary
@@ -56,14 +55,15 @@ const ProjectRisks = ({ projectId }) => {
     }
   };
 
-  const getRiskLevelFromSummary = (summary) => {
-    if (!summary) return 'Medium Risk';
-    const summaryLower = summary.toLowerCase();
-    if (summaryLower.includes('critical')) return 'Critical Risk';
-    if (summaryLower.includes('high')) return 'High Risk';
-    if (summaryLower.includes('medium')) return 'Medium Risk';
-    if (summaryLower.includes('low')) return 'Low Risk';
-    return 'Medium Risk';
+  const getRiskLevelFromSeverity = (severity) => {
+    switch (severity) {
+      case 5: return 'Critical Risk';
+      case 4: return 'High Risk';
+      case 3: return 'Medium Risk';
+      case 2: return 'Low Risk';
+      case 1: return 'Very Low Risk';
+      default: return 'Medium Risk';
+    }
   };
 
   const getRiskLevelColor = (riskLevel) => {
@@ -76,6 +76,8 @@ const ProjectRisks = ({ projectId }) => {
         return 'bg-amber-400 text-amber-900';
       case 'Low Risk':
         return 'bg-green-400 text-green-900';
+      case 'Very Low Risk':
+        return 'bg-teal-400 text-teal-900';
       default:
         return 'bg-amber-400 text-amber-900';
     }
@@ -91,12 +93,12 @@ const ProjectRisks = ({ projectId }) => {
     ];
 
     projectRisks.forEach(risk => {
-      const riskLevel = getRiskLevelFromSummary(risk.summary);
-      if (riskLevel.includes('Critical')) summary[0].count++;
-      else if (riskLevel.includes('High')) summary[1].count++;
-      else if (riskLevel.includes('Medium')) summary[2].count++;
-      else if (riskLevel.includes('Low')) summary[3].count++;
-      else summary[4].count++;
+      const severity = risk.severity;
+      if (severity === 5) summary[0].count++;
+      else if (severity === 4) summary[1].count++;
+      else if (severity === 3) summary[2].count++;
+      else if (severity === 2) summary[3].count++;
+      else if (severity === 1) summary[4].count++;
     });
 
     return summary;
@@ -141,7 +143,6 @@ const ProjectRisks = ({ projectId }) => {
               <th className="px-4 py-3 text-gray-500 font-medium">RISK NAME</th>
               <th className="px-4 py-3 text-gray-500 font-medium">OWNER</th>
               <th className="px-4 py-3 text-gray-500 font-medium">SEVERITY</th>
-              <th className="px-4 py-3 text-gray-500 font-medium">LIKELIHOOD</th>
               <th className="px-4 py-3 text-gray-500 font-medium">MITIGATION</th>
               <th className="px-4 py-3 text-gray-500 font-medium">STATUS</th>
               <th className="px-4 py-3 text-gray-500 font-medium">RISK LEVEL</th>
@@ -152,14 +153,14 @@ const ProjectRisks = ({ projectId }) => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="9" className="px-4 py-8 text-center text-gray-500">
+                <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
                   Loading project risks...
                 </td>
               </tr>
             ) : risks.length === 0 ? (
               <tr>
-                <td colSpan="9" className="px-4 py-8 text-center text-gray-500">
-                  No risk assessments found for this project.
+                <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
+                  No risks found for this project.
                 </td>
               </tr>
             ) : (
@@ -168,9 +169,18 @@ const ProjectRisks = ({ projectId }) => {
                   <td className="px-4 py-3 font-medium">{risk.name}</td>
                   <td className="px-4 py-3">{risk.owner}</td>
                   <td className="px-4 py-3">{risk.severity}</td>
-                  <td className="px-4 py-3">{risk.likelihood}</td>
-                  <td className="px-4 py-3">{risk.mitigation}</td>
-                  <td className="px-4 py-3">{risk.status}</td>
+                  <td className="px-4 py-3 max-w-xs truncate" title={risk.mitigation}>
+                    {risk.mitigation}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      risk.status === 'Active' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {risk.status}
+                    </span>
+                  </td>
                   <td className="px-4 py-3">
                     <span className={`px-3 py-1 rounded font-semibold ${risk.riskLevelColor}`}>
                       {risk.riskLevel}

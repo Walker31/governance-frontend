@@ -41,11 +41,12 @@ const QuestionItem = ({
   };
 
   return (
-    <Box key={q.id} mb={3} display="flex" alignItems="flex-start" gap={1}>
+    <Box key={q.id} mb={3} p={0} display="flex" alignItems="flex-start" gap={1}>
       <Box flex={1}>
-        <Typography fontWeight={500} mb={1}>
+        <Typography fontWeight={500} mb={1} sx={{ fontSize: '1.08rem' }}>
           {idx + 1}. {q.label}
         </Typography>
+        {/* Add extra margin below label for clarity */}
 
         {q.type === 'text-country' && (
           <Grid container spacing={2} mb={1}>

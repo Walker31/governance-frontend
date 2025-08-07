@@ -41,8 +41,8 @@ api.interceptors.response.use(
 );
 
 class RiskMatrixService {
-  // Get all risk matrix results with optional filtering and pagination
-  async getAllRiskMatrixResults(params = {}) {
+  // Get all risks with optional filtering and pagination
+  async getAllRisks(params = {}) {
     try {
       const queryParams = new URLSearchParams();
       
@@ -52,84 +52,101 @@ class RiskMatrixService {
       if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
       if (params.search) queryParams.append('search', params.search);
       if (params.projectId) queryParams.append('projectId', params.projectId);
+      if (params.sessionId) queryParams.append('sessionId', params.sessionId);
       
-      const response = await api.get(`/risk-matrix-results?${queryParams.toString()}`);
+      const response = await api.get(`/risk-matrix-risks?${queryParams.toString()}`);
       return response.data;
     } catch (error) {
-      throw new Error(error.response?.data?.error || 'Failed to fetch risk matrix results');
+      throw new Error(error.response?.data?.error || 'Failed to fetch risks');
     }
   }
 
-  // Get all risk matrix results for a project
-  async getRiskMatrixResults(projectId = DEFAULT_PROJECT_ID) {
-    try {
-      const response = await api.get(`/risk-matrix-results/project/${projectId}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.error || 'Failed to fetch risk matrix results');
-    }
-  }
-
-  // Get risk matrix result by ID
-  async getRiskMatrixResult(id) {
-    try {
-      const response = await api.get(`/risk-matrix-results/${id}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.error || 'Failed to fetch risk matrix result');
-    }
-  }
-
-  // Get risk matrix result by session ID
-  async getRiskMatrixResultBySession(sessionId) {
-    try {
-      const response = await api.get(`/risk-matrix-results/session/${sessionId}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.error || 'Failed to fetch risk matrix result');
-    }
-  }
-
-  // Create new risk matrix result
-  async createRiskMatrixResult(data) {
-    try {
-      const response = await api.post('/risk-matrix-results', data);
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.error || 'Failed to create risk matrix result');
-    }
-  }
-
-  // Update risk matrix result
-  async updateRiskMatrixResult(id, data) {
-    try {
-      const response = await api.put(`/risk-matrix-results/${id}`, data);
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.error || 'Failed to update risk matrix result');
-    }
-  }
-
-  // Delete risk matrix result (admin only)
-  async deleteRiskMatrixResult(id) {
-    try {
-      const response = await api.delete(`/risk-matrix-results/${id}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.error || 'Failed to delete risk matrix result');
-    }
-  }
-
-  // Get risk summary statistics
-  async getRiskSummaryStats(params = {}) {
+  // Get risks for a specific project
+  async getRisksByProject(projectId, params = {}) {
     try {
       const queryParams = new URLSearchParams();
-      if (params.projectId) queryParams.append('projectId', params.projectId);
       
-      const response = await api.get(`/risk-matrix-results/stats/summary?${queryParams.toString()}`);
+      if (params.page) queryParams.append('page', params.page);
+      if (params.limit) queryParams.append('limit', params.limit);
+      if (params.severity) queryParams.append('severity', params.severity);
+      
+      const response = await api.get(`/risk-matrix-risks/project/${projectId}?${queryParams.toString()}`);
       return response.data;
     } catch (error) {
-      throw new Error(error.response?.data?.error || 'Failed to fetch risk summary statistics');
+      throw new Error(error.response?.data?.error || 'Failed to fetch project risks');
+    }
+  }
+
+  // Get risks for a specific session
+  async getRisksBySession(sessionId) {
+    try {
+      const response = await api.get(`/risk-matrix-risks/session/${sessionId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch session risks');
+    }
+  }
+
+  // Store risks from agent response
+  async storeRisks(data) {
+    try {
+      const response = await api.post('/risk-matrix-risks', data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to store risks');
+    }
+  }
+
+  // Update a risk
+  async updateRisk(riskId, updateData) {
+    try {
+      const response = await api.put(`/risk-matrix-risks/${riskId}`, updateData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to update risk');
+    }
+  }
+
+  // Delete a risk
+  async deleteRisk(riskId) {
+    try {
+      const response = await api.delete(`/risk-matrix-risks/${riskId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to delete risk');
+    }
+  }
+
+  // Get risk statistics
+  async getRiskStatistics(projectId = null) {
+    try {
+      const queryParams = new URLSearchParams();
+      if (projectId) queryParams.append('projectId', projectId);
+      
+      const response = await api.get(`/risk-matrix-risks/stats/summary?${queryParams.toString()}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch risk statistics');
+    }
+  }
+
+  // Process questionnaire and generate risks
+  async processQuestionnaire(questionnaireData) {
+    try {
+      const response = await api.post('/questionnaire/process', questionnaireData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to process questionnaire');
+    }
+  }
+
+  // Get questionnaire status
+  async getQuestionnaireStatus(sessionId) {
+    try {
+      const response = await api.get(`/questionnaire/status/${sessionId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to get questionnaire status');
     }
   }
 }

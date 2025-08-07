@@ -74,7 +74,7 @@ const CyberSecurityRiskAssessment = () => {
   const fetchRiskMatrixResults = async (params = {}) => {
     try {
       setLoading(true);
-      const response = await riskMatrixService.getAllRiskMatrixResults({
+      const response = await riskMatrixService.getAllRisks({
         page: params.page || pagination.page,
         limit: params.limit || pagination.limit,
         search: params.search || searchQuery,
@@ -82,7 +82,7 @@ const CyberSecurityRiskAssessment = () => {
         sortOrder: 'desc'
       });
       
-      setRiskMatrixResults(response.results || []);
+      setRiskMatrixResults(response.risks || []);
       setPagination(response.pagination || {
         page: 1,
         limit: 10,
@@ -90,7 +90,7 @@ const CyberSecurityRiskAssessment = () => {
         pages: 0
       });
     } catch (error) {
-      console.error('Error fetching risk matrix results:', error);
+      console.error('Error fetching risks:', error);
       // Fallback to static data if API fails
       setRiskMatrixResults(riskItems);
     } finally {
@@ -101,19 +101,20 @@ const CyberSecurityRiskAssessment = () => {
   // Fetch risk statistics for pie chart
   const fetchRiskStats = async () => {
     try {
-      const stats = await riskMatrixService.getRiskSummaryStats();
+      const stats = await riskMatrixService.getRiskStatistics();
       setRiskStats(stats);
       
       // Update pie chart data
       const newPieData = [
-        { name: 'Critical', value: stats.riskLevels.Critical, color: '#ef4444' },
-        { name: 'High', value: stats.riskLevels.High, color: '#f97316' },
-        { name: 'Medium', value: stats.riskLevels.Medium, color: '#eab308' },
-        { name: 'Low', value: stats.riskLevels.Low, color: '#22c55e' },
+        { name: 'Critical', value: stats.riskLevels?.Critical || 0, color: '#ef4444' },
+        { name: 'High', value: stats.riskLevels?.High || 0, color: '#f97316' },
+        { name: 'Medium', value: stats.riskLevels?.Medium || 0, color: '#eab308' },
+        { name: 'Low', value: stats.riskLevels?.Low || 0, color: '#22c55e' },
       ];
       setPieData(newPieData);
     } catch (error) {
       console.error('Error fetching risk statistics:', error);
+      // Keep default values on error
     }
   };
 
@@ -226,7 +227,7 @@ const CyberSecurityRiskAssessment = () => {
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-bold">{riskStats.percentages.Critical}%</span>
+                    <span className="text-2xl font-bold">{riskStats?.percentages?.Critical || 0}%</span>
                     <span className="text-sm text-muted-foreground">Critical risks</span>
                   </div>
                 </div>
@@ -242,30 +243,30 @@ const CyberSecurityRiskAssessment = () => {
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="text-sm">Completed</span>
-                    <span className="text-sm font-medium">{riskStats.summary.completedAssessments} assessments</span>
+                    <span className="text-sm font-medium">{riskStats?.summary?.completedAssessments || 0} assessments</span>
                   </div>
                   <Progress 
-                    value={riskStats.summary.totalAssessments > 0 ? (riskStats.summary.completedAssessments / riskStats.summary.totalAssessments) * 100 : 0} 
+                    value={riskStats?.summary?.totalAssessments > 0 ? (riskStats?.summary?.completedAssessments / riskStats?.summary?.totalAssessments) * 100 : 0} 
                     className="h-3 bg-orange-200"
                   >
                     <div 
                       className="h-full bg-orange-500 rounded-full" 
-                      style={{ width: `${riskStats.summary.totalAssessments > 0 ? (riskStats.summary.completedAssessments / riskStats.summary.totalAssessments) * 100 : 0}%` }} 
+                      style={{ width: `${riskStats?.summary?.totalAssessments > 0 ? (riskStats?.summary?.completedAssessments / riskStats?.summary?.totalAssessments) * 100 : 0}%` }} 
                     />
                   </Progress>
                 </div>
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="text-sm">Pending</span>
-                    <span className="text-sm font-medium">{riskStats.summary.pendingAssessments} assessments</span>
+                    <span className="text-sm font-medium">{riskStats?.summary?.pendingAssessments || 0} assessments</span>
                   </div>
                   <Progress 
-                    value={riskStats.summary.totalAssessments > 0 ? (riskStats.summary.pendingAssessments / riskStats.summary.totalAssessments) * 100 : 0} 
+                    value={riskStats?.summary?.totalAssessments > 0 ? (riskStats?.summary?.pendingAssessments / riskStats?.summary?.totalAssessments) * 100 : 0} 
                     className="h-3 bg-gray-200"
                   >
                     <div 
                       className="h-full bg-gray-500 rounded-full" 
-                      style={{ width: `${riskStats.summary.totalAssessments > 0 ? (riskStats.summary.pendingAssessments / riskStats.summary.totalAssessments) * 100 : 0}%` }} 
+                      style={{ width: `${riskStats?.summary?.totalAssessments > 0 ? (riskStats?.summary?.pendingAssessments / riskStats?.summary?.totalAssessments) * 100 : 0}%` }} 
                     />
                   </Progress>
                 </div>
@@ -317,13 +318,13 @@ const CyberSecurityRiskAssessment = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Risk Assessment ID</TableHead>
-                    <TableHead>Summary</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created By</TableHead>
-                    <TableHead>Created Date</TableHead>
-                    <TableHead>Risk Data</TableHead>
-                    <TableHead>User</TableHead>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Risk level</TableHead>
+                    <TableHead>Strategy</TableHead>
+                    <TableHead>Strategy status</TableHead>
+                    <TableHead>Controls</TableHead>
+                    <TableHead>Manager</TableHead>
                     <TableHead></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -333,14 +334,14 @@ const CyberSecurityRiskAssessment = () => {
                       <TableCell colSpan={8} className="text-center py-8">
                         <div className="flex items-center justify-center">
                           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                          <span className="ml-2">Loading risk assessments...</span>
+                          <span className="ml-2">Loading risks...</span>
                         </div>
                       </TableCell>
                     </TableRow>
                   ) : riskMatrixResults.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                        No risk assessments found. Start by creating a new assessment.
+                        No risks found. Start by creating a new risk assessment.
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -350,23 +351,29 @@ const CyberSecurityRiskAssessment = () => {
                         className="font-medium text-blue-600 cursor-pointer hover:underline"
                         onClick={() => handleRiskClick(item)}
                       >
-                        {item.riskAssessmentId || item.sessionId?.substring(0, 8) || item._id?.substring(0, 8) || 'N/A'}
+                        {item.riskAssessmentId || item._id?.substring(0, 8) || `R-${index + 1}`}
                       </TableCell>
-                      <TableCell className="max-w-xs truncate">
-                        {item.summary || 'No summary available'}
-                      </TableCell>
+                      <TableCell>{item.riskName || 'Unnamed Risk'}</TableCell>
                       <TableCell>
-                        <Badge variant="secondary" className="bg-orange-100 text-orange-800">
-                          {item.markdownTable ? 'Generated' : 'Pending'}
+                        <Badge variant="secondary" className={
+                          item.severity >= 5 ? 'bg-red-100 text-red-800' :
+                          item.severity >= 4 ? 'bg-orange-100 text-orange-800' :
+                          item.severity >= 3 ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-green-100 text-green-800'
+                        }>
+                          {item.severity === 5 ? 'Critical' :
+                           item.severity === 4 ? 'High' :
+                           item.severity === 3 ? 'Medium' :
+                           item.severity === 2 ? 'Low' : 'Very Low'} ({item.severity})
                         </Badge>
                       </TableCell>
-                      <TableCell>{item.createdBy?.name || 'Unknown'}</TableCell>
-                      <TableCell>{new Date(item.createdAt).toLocaleDateString()}</TableCell>
-                      <TableCell>{item.riskData ? 'Yes' : 'No'}</TableCell>
+                      <TableCell>{item.mitigation ? 'Set' : 'Not set'}</TableCell>
+                      <TableCell>{item.mitigation ? 'In progress' : 'Not started'}</TableCell>
+                      <TableCell>{item.controls || 0}</TableCell>
                       <TableCell>
                         <Avatar className="w-8 h-8">
                           <AvatarFallback className="bg-gray-200 text-gray-600 text-xs">
-                            {item.createdBy?.name?.charAt(0) || 'U'}
+                            {item.riskOwner?.charAt(0) || item.createdBy?.name?.charAt(0) || 'U'}
                           </AvatarFallback>
                         </Avatar>
                       </TableCell>

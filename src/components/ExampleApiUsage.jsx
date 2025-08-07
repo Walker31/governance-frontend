@@ -26,8 +26,6 @@ const ExampleApiUsage = () => {
 
   useEffect(() => {
     // Log the backend URL in development
-    console.log('Backend URL:', BACKEND_URL);
-    console.log('Full API URL example:', getBackendUrl('/api/example'));
   }, []);
 
   return (
