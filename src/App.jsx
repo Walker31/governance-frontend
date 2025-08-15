@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Layout from "./components/layout";
 import Home from "./pages/Dashboard/home";
 import Templates from "./pages/Templates/main";
@@ -26,57 +26,69 @@ import RiskAssessment from "./pages/CyberSecurity Management/Risk Assessment/Ris
 import RiskAnalysis from "./pages/CyberSecurity Management/RiskAnalysis";
 import ThirdPartyAssessment from "./pages/ThirdPartyAssessment/main";
 import RiskManager from "./pages/CyberSecurity Management/Risk Manager/RiskManager";
+import Login from "./pages/Login/login";
+import ProtectedRoute from "./components/ProtectedRoute";
+import DashAlt from "./pages/Dashboard/DahboardAlternate";
 
-function App() {
+function AppRoutes() {
+  const { user } = useAuth();
+
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
+    <Routes>
+      {/* Root route: Login if no user, Dashboard if logged in */}
+      <Route
+        path="/"
+        element={
+          user ? (
+            <Layout />
+          ) : (
+            <Login />
+          )
+        }
+      >
+        {user && (
+          <>
+            <Route index element={<DashAlt />} />
             <Route path="templates" element={<Templates />} />
             <Route path="templates/:templateId" element={<TemplateQuestions />} />
-            <Route path="usecase" element={<UseCase/>} />
-            <Route path="questionare" element={<Questionare/>}/>
-            <Route path="projects" element={<Projects/>}/>
-            <Route path="project-view/:projectId?" element={<ProjectView/>}/>
-            <Route path="reports" element={<Reports/>}/>
-            <Route path="users" element={<UserManagement />} />
+            <Route path="usecase" element={<UseCase />} />
+            <Route path="questionare" element={<Questionare />} />
+            <Route path="projects" element={<Projects />} />
+            <Route path="project-view/:projectId?" element={<ProjectView />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="users" element={<ProtectedRoute requiredRole="admin"><UserManagement /></ProtectedRoute>} />
             <Route path="chat" element={<ChatAgent />} />
             <Route path="demo" element={<Demo />} />
             <Route path="ai-inventory" element={<AIInventory />} />
             <Route path="ai-inventory/:assetId" element={<AssetDetail />} />
-            <Route path="ai-risk-assessment" element={<AIRiskAssessment/>} />
+            <Route path="ai-risk-assessment" element={<AIRiskAssessment />} />
             <Route path="ai-control-assessment" element={<AIControlAssessment />} />
-            <Route path="ai-policy" element={<AIPolicy/>} />
-            <Route path="ai-regulatory-assessment" element={<AIRegulatoryAssessment/>} />
-
+            <Route path="ai-policy" element={<AIPolicy />} />
+            <Route path="ai-regulatory-assessment" element={<AIRegulatoryAssessment />} />
             <Route path="cyber-risk-assessment" element={<RiskAssessment />} />
-            <Route path="cyber-control-assessment" element={<ControlAssessment/>} />
-            <Route path="cyber-risk-manager" element={<RiskManager/>} />
-            <Route path="cyber-risk-analysis" element={<RiskAnalysis/>} />
+            <Route path="cyber-control-assessment" element={<ControlAssessment />} />
+            <Route path="cyber-risk-manager" element={<RiskManager />} />
+            <Route path="cyber-risk-analysis" element={<RiskAnalysis />} />
+            <Route path="3passessements" element={<ThirdPartyAssessment />} />
+            <Route path="documents" element={<TrustCenterDocuments />} />
+            <Route path="insights" element={<TrustCenterInsight />} />
+          </>
+        )}
+        <Route path="*" element={<NotFound />} />
+      </Route>
 
-            <Route path="3passessements" element={<ThirdPartyAssessment/>} />
+      {/* Optional explicit login route */}
+      <Route path="/login" element={<Login />} />
+    </Routes>
+  );
+}
 
-            <Route path="documents" element={<TrustCenterDocuments/>} />
-            <Route path="insights" element={<TrustCenterInsight/>} />
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
+export default function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppRoutes />
       </Router>
     </AuthProvider>
   );
 }
-
-const PlaceholderPage = ({ title }) => {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
-      <h1 className="text-4xl font-bold text-blue-800 mb-4">{title}</h1>
-      <p className="text-lg text-gray-600">This page is under development.</p>
-    </div>
-  );
-};
-
-
-
-export default App;

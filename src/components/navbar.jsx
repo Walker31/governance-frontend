@@ -35,6 +35,7 @@ const Navbar = () => {
   const handleLogout = () => {
     logout();
     handleMenuClose();
+    navigate('/');
   };
 
   const handleProfileClick = () => {
@@ -78,10 +79,9 @@ const Navbar = () => {
                 px: 2.5,
               }}
             >
-              Create Use Case
+              Create Assessment
             </Button>
 
-            {user ? (
               <div className="flex items-center gap-2">
                 <div className="text-right mr-2">
                   <div className="text-sm font-medium text-gray-900">
@@ -145,22 +145,6 @@ const Navbar = () => {
                   </MenuItem>
                 </Menu>
               </div>
-            ) : (
-              <Button
-                variant="outlined"
-                startIcon={<PersonIcon />}
-                onClick={() => setShowAuthModal(true)}
-                className="!border-[#1d4ed8] !text-[#1d4ed8] !bg-gray-100 hover:!bg-blue-50 transition-all duration-200"
-                sx={{
-                  textTransform: "none",
-                  fontWeight: 600,
-                  px: 2,
-                  borderWidth: 2,
-                }}
-              >
-                Login
-              </Button>
-            )}
           </Box>
         </Toolbar>
       </AppBar>

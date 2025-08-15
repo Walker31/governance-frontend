@@ -7,6 +7,7 @@ import Overview from './components/overview';
 import ProjectRisks from './components/projectRisks';
 import Frameworks from './components/frameworks';
 import Settings from './components/settings';
+import Purpose from './components/purpose';
 
 const tabLabels = [
   "Overview",
@@ -14,7 +15,8 @@ const tabLabels = [
   "Frameworks",
   "Settings",
   "Comments",
-  "Workflows"
+  "Workflows",
+  "Purpose & Elements"
 ];
 
 function TabPanel({ value, index, children }) {
@@ -74,6 +76,10 @@ const ProjectView = () => {
       <TabPanel value={tab} index={3}>
         {/* Settings Content */}
         <Settings/>
+      </TabPanel>
+      <TabPanel value={tab} index={6}>
+        {/* Settings Content */}
+        <Purpose/>
       </TabPanel>
     </div>
   );

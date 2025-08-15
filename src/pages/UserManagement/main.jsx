@@ -22,8 +22,13 @@ import {
 import {
   CheckCircle as ActiveIcon,
   Cancel as InactiveIcon,
-  Refresh as RefreshIcon
+  Refresh as RefreshIcon,
+  WorkspacePremium as CrownIcon,  // Admin icon
+  ShieldOutlined as ShieldIcon     // User icon
 } from '@mui/icons-material';
+import { Select } from 'antd';
+
+const { Option } = Select;
 
 const UserManagement = () => {
   const { user: currentUser, isAdmin } = useAuth();
@@ -39,6 +44,7 @@ const UserManagement = () => {
       return;
     }
     fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin]);
 
   const fetchUsers = async () => {
@@ -47,8 +53,8 @@ const UserManagement = () => {
       setError('');
       const response = await authService.getUsers();
       setUsers(response.data.users);
-    } catch (error) {
-      setError(error.message || 'Failed to fetch users');
+    } catch (err) {
+      setError(err.message || 'Failed to fetch users');
     } finally {
       setLoading(false);
     }
@@ -58,30 +64,90 @@ const UserManagement = () => {
     try {
       setUpdatingUser(userId);
       await authService.updateUserStatus(userId, !currentStatus);
-      
-      // Update local state
-      setUsers(prevUsers =>
-        prevUsers.map(user =>
-          user._id === userId
-            ? { ...user, isActive: !currentStatus }
-            : user
-        )
+      setUsers(prev =>
+        prev.map(u => (u._id === userId ? { ...u, isActive: !currentStatus } : u))
       );
-    } catch (error) {
-      setError(error.message || 'Failed to update user status');
+    } catch (err) {
+      setError(err.message || 'Failed to update user status');
     } finally {
       setUpdatingUser(null);
     }
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+  const handleRoleChange = async (userId, newRole) => {
+    try {
+      setUpdatingUser(userId);
+      await authService.updateUserRole(userId, newRole);
+      setUsers(prev =>
+        prev.map(u => (u._id === userId ? { ...u, role: newRole } : u))
+      );
+    } catch (err) {
+      setError(err.message || 'Failed to update user role');
+    } finally {
+      setUpdatingUser(null);
+    }
+  };
+
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
+
+  // Role pill base style
+  const rolePillBase = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '6px 12px',
+    borderRadius: 999,
+    fontWeight: 700,
+    letterSpacing: 0.2,
+    fontSize: 12,
+    cursor: 'pointer',
+    transition: 'transform 120ms ease, boxShadow 120ms ease',
+    border: 'none',
+  };
+
+  const getPillVisuals = (role) => {
+    const isAdminRole = role === 'admin';
+    return {
+      color: isAdminRole ? '#6b21a8' : '#1d4ed8',
+      background: isAdminRole
+        ? 'linear-gradient(90deg, #f5e8ff 0%, #eadcff 100%)'
+        : 'linear-gradient(90deg, #e6f0ff 0%, #d6e6ff 100%)',
+      boxShadow: isAdminRole
+        ? '0 2px 10px rgba(107,33,168,0.18)'
+        : '0 2px 10px rgba(29,78,216,0.18)',
+    };
+  };
+
+  const RoleOption = ({ role, style }) => {
+    const isAdminRole = role === 'admin';
+    return (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '6px 10px',
+          borderRadius: 10,
+          ...style
+        }}
+      >
+        {isAdminRole ? (
+          <CrownIcon style={{ fontSize: 16, color: '#a855f7' }} />
+        ) : (
+          <ShieldIcon style={{ fontSize: 16, color: '#2563eb' }} />
+        )}
+        <span style={{ fontWeight: 700, color: isAdminRole ? '#6b21a8' : '#1d4ed8' }}>
+          {role.charAt(0).toUpperCase() + role.slice(1)}
+        </span>
+      </div>
+    );
   };
 
   if (!isAdmin()) {
@@ -155,22 +221,44 @@ const UserManagement = () => {
                       </Box>
                     </Box>
                   </TableCell>
+
                   <TableCell>
                     <Typography variant="body2" className="text-gray-600">
                       {user.email}
                     </Typography>
                   </TableCell>
+
                   <TableCell>
-                    <Chip
-                      label={user.role}
-                      size="small"
-                      className={
-                        user.role === 'admin'
-                          ? 'bg-purple-100 text-purple-800'
-                          : 'bg-blue-100 text-blue-800'
-                      }
-                    />
+                    <Select
+                      value={user.role}
+                      onChange={(value) => handleRoleChange(user._id, value)}
+                      disabled={user._id === currentUser._id || updatingUser === user._id}
+                      bordered={false}
+                      dropdownStyle={{ borderRadius: 12, padding: 8 }}
+                      popupMatchSelectWidth={200}
+                      suffixIcon={<span style={{ opacity: 0.7 }}>▾</span>}
+                      style={{
+                        ...rolePillBase,
+                        ...getPillVisuals(user.role),
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.03)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1.0)')}
+                    >
+                      <Option value="admin">
+                        <RoleOption
+                          role="admin"
+                          style={{ background: 'linear-gradient(90deg,#f5e8ff,#eadcff)' }}
+                        />
+                      </Option>
+                      <Option value="user">
+                        <RoleOption
+                          role="user"
+                          style={{ background: 'linear-gradient(90deg,#e6f0ff,#d6e6ff)' }}
+                        />
+                      </Option>
+                    </Select>
                   </TableCell>
+
                   <TableCell>
                     <Box className="flex items-center gap-2">
                       {user.isActive ? (
@@ -189,16 +277,19 @@ const UserManagement = () => {
                       />
                     </Box>
                   </TableCell>
+
                   <TableCell>
                     <Typography variant="body2" className="text-gray-600">
                       {formatDate(user.createdAt)}
                     </Typography>
                   </TableCell>
+
                   <TableCell>
                     <Typography variant="body2" className="text-gray-600">
                       {user.lastLogin ? formatDate(user.lastLogin) : 'Never'}
                     </Typography>
                   </TableCell>
+
                   <TableCell>
                     {user._id !== currentUser._id && (
                       <Tooltip title={user.isActive ? 'Deactivate user' : 'Activate user'}>
@@ -227,4 +318,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement; 
+export default UserManagement;

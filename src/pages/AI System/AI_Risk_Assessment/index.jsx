@@ -36,6 +36,7 @@ const AIRiskAssessment = () => {
     totalAssessments: 0,
     summary: { totalAssessments: 0, completedAssessments: 0, pendingAssessments: 0 }
   });
+  
 
   const [pieData, setPieData] = useState([
     { name: 'Critical', value: 0, color: '#ef4444' },
@@ -43,6 +44,12 @@ const AIRiskAssessment = () => {
     { name: 'Medium', value: 0, color: '#eab308' },
     { name: 'Low', value: 0, color: '#22c55e' },
   ]);
+
+  const criticalCount = pieData.find(d => d.name === 'Critical')?.value || 0;
+  const totalCount = pieData.reduce((sum, d) => sum + d.value, 0);
+  const criticalPercent = totalCount ? Math.round((criticalCount / totalCount) * 100) : 0;
+
+
 
   const riskItems = [
     {
@@ -118,6 +125,27 @@ const AIRiskAssessment = () => {
     }
   };
 
+  useEffect(() => {
+    const counts = { Critical: 0, High: 0, Medium: 0, Low: 0 };
+    riskMatrixResults.forEach((item) => {
+      // Assuming item.riskLevel is a string like "High (15)"
+      let level = item.riskLevel;
+      if (typeof level === 'string') {
+        level = level.split(' ')[0]; // Extract "High" from "High (15)"
+      }
+      if (counts.hasOwnProperty(level)) {
+        counts[level]++;
+      }
+    });
+    setPieData([
+      { name: 'Critical', value: counts.Critical, color: '#ef4444' },
+      { name: 'High', value: counts.High, color: '#f97316' },
+      { name: 'Medium', value: counts.Medium, color: '#eab308' },
+      { name: 'Low', value: counts.Low, color: '#22c55e' },
+    ]);
+  }, [riskMatrixResults]);
+
+
   // Load data on component mount
   useEffect(() => {
     fetchRiskMatrixResults();
@@ -128,6 +156,39 @@ const AIRiskAssessment = () => {
   const handleSearch = (query) => {
     setSearchQuery(query);
     fetchRiskMatrixResults({ search: query, page: 1 });
+  };
+
+  // Example: Add Risk Handler
+  const handleAddRisk = async (riskData) => {
+    try {
+      await riskMatrixService.storeRisks(riskData);
+      await fetchRiskMatrixResults();
+      await fetchRiskStats(); // Refresh pie chart
+    } catch (error) {
+      console.error('Error adding risk:', error);
+    }
+  };
+
+  // Example: Edit Risk Handler
+  const handleEditRisk = async (riskId, updateData) => {
+    try {
+      await riskMatrixService.updateRisk(riskId, updateData);
+      await fetchRiskMatrixResults();
+      await fetchRiskStats(); // Refresh pie chart
+    } catch (error) {
+      console.error('Error editing risk:', error);
+    }
+  };
+
+  // Example: Delete Risk Handler
+  const handleDeleteRisk = async (riskId) => {
+    try {
+      await riskMatrixService.deleteRisk(riskId);
+      await fetchRiskMatrixResults();
+      await fetchRiskStats(); // Refresh pie chart
+    } catch (error) {
+      console.error('Error deleting risk:', error);
+    }
   };
 
   // Dashboard View
@@ -227,10 +288,11 @@ const AIRiskAssessment = () => {
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-bold">{riskStats?.percentages?.Critical || 0}%</span>
+                    <span className="text-2xl font-bold">{criticalPercent}%</span>
                     <span className="text-sm text-muted-foreground">Critical risks</span>
                   </div>
                 </div>
+
               </CardContent>
             </Card>
 

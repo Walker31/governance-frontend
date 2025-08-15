@@ -18,16 +18,12 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // Response interceptor to handle errors
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
     if (error.response?.status === 401) {
       // Token expired or invalid, clear storage
@@ -54,17 +50,43 @@ class AuthService {
   async login(credentials) {
     try {
       const response = await api.post('/auth/login', credentials);
-      
-      // Store token in localStorage
-      if (response.data.data?.token) {
-        localStorage.setItem('token', response.data.data.token);
-      } else if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
+      // Store token
+      const token = response.data.data?.token || response.data.token;
+      if (token) localStorage.setItem('token', token);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Login failed');
+    }
+  }
+
+  // In AuthService.js
+
+  async loginWithGoogle(idToken) {
+    try {
+      const response = await api.post("/auth/google", { token: idToken });
+
+      // Save the token from backend if present
+      const token = response.data.data?.token || response.data.token;
+      if (token) {
+        localStorage.setItem("token", token);
       }
 
       return response.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Login failed');
+      throw new Error(error.response?.data?.message || "Google login failed");
+    }
+  }
+
+
+  // Login with token (used for magic links or silent login)
+  async getProfileWithToken(token) {
+    try {
+      const response = await api.get('/auth/profile', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to get profile');
     }
   }
 
@@ -124,20 +146,28 @@ class AuthService {
     }
   }
 
-  // Check if user is authenticated
+  // Update user role (admin only)
+  async updateUserRole(userId, role) {
+    try {
+      const response = await api.put(`/auth/users/${userId}/role`, { role });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to update user role');
+    }
+  }
+
+  // Helpers
   isAuthenticated() {
     return !!localStorage.getItem('token');
   }
 
-  // Get stored token
   getToken() {
     return localStorage.getItem('token');
   }
 
-  // Set token
   setToken(token) {
     localStorage.setItem('token', token);
   }
 }
 
-export default new AuthService(); 
+export default new AuthService();

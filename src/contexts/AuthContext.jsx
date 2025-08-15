@@ -13,7 +13,7 @@ export const useAuth = () => {
 
 export const ROLES = {
   ADMIN: 'admin',
-  USER: 'user'
+  USER: 'user',
 };
 
 export const PERMISSIONS = {
@@ -22,15 +22,15 @@ export const PERMISSIONS = {
   CREATE_TEMPLATES: 'create_templates',
   EDIT_TEMPLATES: 'edit_templates',
   DELETE_TEMPLATES: 'delete_templates',
-  
+
   // Response permissions
   VIEW_RESPONSES: 'view_responses',
   CREATE_RESPONSES: 'create_responses',
   EDIT_RESPONSES: 'edit_responses',
   DELETE_RESPONSES: 'delete_responses',
-  
+
   // User management
-  MANAGE_USERS: 'manage_users'
+  MANAGE_USERS: 'manage_users',
 };
 
 // Permission mapping for each role
@@ -44,12 +44,9 @@ const ROLE_PERMISSIONS = {
     PERMISSIONS.CREATE_RESPONSES,
     PERMISSIONS.EDIT_RESPONSES,
     PERMISSIONS.DELETE_RESPONSES,
-    PERMISSIONS.MANAGE_USERS
+    PERMISSIONS.MANAGE_USERS,
   ],
-  [ROLES.USER]: [
-    PERMISSIONS.VIEW_TEMPLATES,
-    PERMISSIONS.CREATE_RESPONSES
-  ]
+  [ROLES.USER]: [PERMISSIONS.VIEW_TEMPLATES, PERMISSIONS.CREATE_RESPONSES],
 };
 
 export const AuthProvider = ({ children }) => {
@@ -64,22 +61,19 @@ export const AuthProvider = ({ children }) => {
         const savedUser = localStorage.getItem('user');
 
         if (token && savedUser) {
-          // Verify token with backend
-                  const response = await authService.getProfile();
-        const userData = response.data?.user || response.data?.data?.user;
-        const userWithPermissions = {
-          ...userData,
-          permissions: ROLE_PERMISSIONS[userData.role] || []
-        };
+          const response = await authService.getProfile();
+          const userData = response.data?.user || response.data?.data?.user;
+          const userWithPermissions = {
+            ...userData,
+            permissions: ROLE_PERMISSIONS[userData.role] || [],
+          };
           setUser(userWithPermissions);
           localStorage.setItem('user', JSON.stringify(userWithPermissions));
         } else if (token) {
-          // Token exists but no user data, clear invalid token
           authService.logout();
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
-        // Clear invalid data
         authService.logout();
       } finally {
         setLoading(false);
@@ -95,7 +89,7 @@ export const AuthProvider = ({ children }) => {
       const userData = response.data?.user || response.data?.data?.user;
       const userWithPermissions = {
         ...userData,
-        permissions: ROLE_PERMISSIONS[userData.role] || []
+        permissions: ROLE_PERMISSIONS[userData.role] || [],
       };
       setUser(userWithPermissions);
       localStorage.setItem('user', JSON.stringify(userWithPermissions));
@@ -106,19 +100,44 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (userData) => {
+  const register = async (newUserData) => {
     try {
-      const response = await authService.register(userData);
+      const response = await authService.register(newUserData);
       const userData = response.data?.user || response.data?.data?.user;
       const userWithPermissions = {
         ...userData,
-        permissions: ROLE_PERMISSIONS[userData.role] || []
+        permissions: ROLE_PERMISSIONS[userData.role] || [],
       };
       setUser(userWithPermissions);
       localStorage.setItem('user', JSON.stringify(userWithPermissions));
       return { success: true };
     } catch (error) {
       console.error('Registration error:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const loginWithToken = async (token) => {
+    try {
+      // Validate token before saving
+      const profileData = await authService.getProfileWithToken(token);
+      localStorage.setItem('token', token);
+
+      const userData = profileData?.data?.user || profileData?.user;
+      if (!userData) throw new Error('No user in /auth/profile response');
+
+      const userWithPermissions = {
+        ...userData,
+        permissions: ROLE_PERMISSIONS[userData.role] || [],
+      };
+
+      setUser(userWithPermissions);
+      localStorage.setItem('user', JSON.stringify(userWithPermissions));
+
+      return { success: true };
+    } catch (error) {
+      console.error('Login with token failed:', error);
+      authService.logout();
       return { success: false, error: error.message };
     }
   };
@@ -134,7 +153,7 @@ export const AuthProvider = ({ children }) => {
       const userData = response.data?.user || response.data?.data?.user;
       const userWithPermissions = {
         ...userData,
-        permissions: ROLE_PERMISSIONS[userData.role] || []
+        permissions: ROLE_PERMISSIONS[userData.role] || [],
       };
       setUser(userWithPermissions);
       localStorage.setItem('user', JSON.stringify(userWithPermissions));
@@ -144,6 +163,34 @@ export const AuthProvider = ({ children }) => {
       return { success: false, error: error.message };
     }
   };
+
+  const loginWithGoogle = async () => {
+  try {
+    // This part depends on whether you use Firebase or Google Identity Services
+    // Example with Firebase:
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const idToken = await result.user.getIdToken();
+
+    const data = await authService.loginWithGoogle(idToken);
+
+    const userData = data.data?.user || data.user;
+    const userWithPermissions = {
+      ...userData,
+      permissions: ROLE_PERMISSIONS[userData.role] || [],
+    };
+
+    setUser(userWithPermissions);
+    localStorage.setItem("user", JSON.stringify(userWithPermissions));
+
+    return { success: true };
+  } catch (error) {
+    console.error("Google login error:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+
 
   const changePassword = async (passwordData) => {
     try {
@@ -172,6 +219,8 @@ export const AuthProvider = ({ children }) => {
     user,
     login,
     register,
+    loginWithToken,
+    loginWithGoogle,
     logout,
     updateProfile,
     changePassword,
@@ -181,7 +230,7 @@ export const AuthProvider = ({ children }) => {
     isUser,
     loading,
     ROLES,
-    PERMISSIONS
+    PERMISSIONS,
   };
 
   return (
@@ -189,4 +238,4 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
-}; 
+};
