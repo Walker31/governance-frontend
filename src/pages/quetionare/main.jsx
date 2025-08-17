@@ -29,7 +29,7 @@ import {
   Typography, // Added for consistent text styling
   Divider    // Added to separate sections
 } from '@mui/material';
-import QuestionItem from './QuestionItem';
+import QuestionItem from './questionItem';
 import OptionEditor from './optionEditor';
 import { nanoid } from 'nanoid';
 import questionnaireService from '../../services/questionnaireService';
