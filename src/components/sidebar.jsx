@@ -81,10 +81,12 @@ const Sidebar = ({ open }) => {
           ]}
         />
         {/* Existing entries */}
+
+        {/* Existing entries */}
         <SidebarItem
           icon={<AutoAwesomeMotionIcon />}
-          label="Projects"
-          to="/projects"
+          label="Inventory"
+          to="/inventory"
           open={open}
         />
 
@@ -123,20 +125,21 @@ const Sidebar = ({ open }) => {
               to="/users"
               open={open}
             />
+            <SidebarItem
+              icon={<Heart />}
+              label="Trust Center"
+              to="#"
+              open={open}
+              subItems={[
+                { label: "Documents", to: "/documents" },
+                { label: "Insights", to: "/insights" },
+              ]}
+        />
           </>
         )}
         <div className="border-t border-white/20 my-2"></div>
 
-        <SidebarItem
-          icon={<Heart />}
-          label="Trust Center"
-          to="#"
-          open={open}
-          subItems={[
-            { label: "Documents", to: "/documents" },
-            { label: "Insights", to: "/insights" },
-          ]}
-        />
+        
         <SidebarItem
           icon={<HelpCircle />}
           label="Support"

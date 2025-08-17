@@ -1,22 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+
 import Overview from './components/overview';
 import ProjectRisks from './components/projectRisks';
 import Frameworks from './components/frameworks';
 import Settings from './components/settings';
 import Purpose from './components/purpose';
 
+// 1. Import your new service function and auth hook
+import { getProjectDetails } from '../../services/projectService';
+
 const tabLabels = [
   "Overview",
   "Project risks",
-  "Frameworks",
   "Settings",
+  "Purpose & Elements",
+  "Frameworks",
   "Comments",
   "Workflows",
-  "Purpose & Elements"
+  
 ];
 
 function TabPanel({ value, index, children }) {
@@ -33,18 +41,59 @@ function TabPanel({ value, index, children }) {
 
 const ProjectView = () => {
   const { projectId } = useParams();
-  const [tab, setTab] = React.useState(0);
+  const token = localStorage.getItem('token');
+
+  const [tab, setTab] = useState(0);
+  const [project, setProject] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchProjectDetails = async () => {
+      if (!token) {
+        return;
+      }
+      try {
+        setLoading(true);
+        const data = await getProjectDetails(projectId, token);
+        setProject(data);
+      } catch (err) {
+        setError(err.message || 'An unexpected error occurred.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjectDetails();
+  }, [projectId, token]); // Add token to the dependency array
 
   const handleChange = (event, newValue) => {
     setTab(newValue);
   };
 
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+        <Alert severity="error" sx={{ mt: 4 }}>{error}</Alert>
+    );
+  }
+
   return (
     <div>
-      <div className="font-semibold text-2xl">AI Compliance Checker project view</div>
-      <div className="text-gray-500 mb-6">
-        This project includes all the governance process status of the AI Compliance Checker project.
-      </div>
+      <Typography variant="h4" component="h1" fontWeight="bold">
+        {project?.projectName || 'Project View'}
+      </Typography>
+      <Typography color="text.secondary" sx={{ mb: 3 }}>
+        {project?.goal || 'This project includes all the governance process status.'}
+      </Typography>
+
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs
           value={tab}
@@ -61,25 +110,21 @@ const ProjectView = () => {
           ))}
         </Tabs>
       </Box>
+
       <TabPanel value={tab} index={0}>
-        {/* Overview Content */}
-        <Overview/>
+        <Overview project={project} />
       </TabPanel>
       <TabPanel value={tab} index={1}>
-        {/* Project risks Content */}
-        <ProjectRisks projectId={projectId}/>
+        <ProjectRisks projectId={projectId} />
+      </TabPanel>
+      <TabPanel value={tab} index={5}>
+        <Frameworks />
       </TabPanel>
       <TabPanel value={tab} index={2}>
-        {/* Frameworks Content */}
-        <Frameworks/>
+        <Settings project={project} />
       </TabPanel>
       <TabPanel value={tab} index={3}>
-        {/* Settings Content */}
-        <Settings/>
-      </TabPanel>
-      <TabPanel value={tab} index={6}>
-        {/* Settings Content */}
-        <Purpose/>
+        <Purpose projectId={projectId} />
       </TabPanel>
     </div>
   );

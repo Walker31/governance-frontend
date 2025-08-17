@@ -1,4 +1,4 @@
-// File: components/QuestionItem.jsx
+// File: QuestionItem.jsx
 import {
   Box,
   Typography,
@@ -26,7 +26,7 @@ const QuestionItem = ({
   onChange
 }) => {
   const { isAdmin } = useAuth();
-  // For checkbox group, handle array of checked values
+
   const handleCheckboxChange = (option) => (event) => {
     if (event.target.checked) {
       onChange([...(value || []), option]);
@@ -35,7 +35,6 @@ const QuestionItem = ({
     }
   };
 
-  // For date-range type
   const handleDateChange = (field) => (event) => {
     onChange({ ...value, [field]: event.target.value });
   };
@@ -46,8 +45,6 @@ const QuestionItem = ({
         <Typography fontWeight={500} mb={1} sx={{ fontSize: '1.08rem' }}>
           {idx + 1}. {q.label}
         </Typography>
-        {/* Add extra margin below label for clarity */}
-
         {q.type === 'text-country' && (
           <Grid container spacing={2} mb={1}>
             <Grid item xs={12} sm={6}>
@@ -76,7 +73,6 @@ const QuestionItem = ({
             </Grid>
           </Grid>
         )}
-
         {q.type === 'text' && (
           <TextField
             fullWidth
@@ -86,7 +82,6 @@ const QuestionItem = ({
             onChange={e => onChange(e.target.value)}
           />
         )}
-
         {q.type === 'textarea' && (
           <TextField
             placeholder={q.placeholder || ''}
@@ -100,21 +95,19 @@ const QuestionItem = ({
             onChange={e => onChange(e.target.value)}
           />
         )}
-
         {q.type === 'radio' && (
           <RadioGroup
             value={value || ''}
             onChange={e => onChange(e.target.value)}
           >
-            {q.options.map((opt, i) => (
+            {(q.options || []).map((opt, i) => (
               <FormControlLabel key={i} value={opt} control={<Radio />} label={opt} />
             ))}
           </RadioGroup>
         )}
-
         {q.type === 'checkbox' && (
           <FormGroup row>
-            {q.options.map((opt, i) => (
+            {(q.options || []).map((opt, i) => (
               <FormControlLabel
                 key={i}
                 control={
@@ -128,66 +121,6 @@ const QuestionItem = ({
             ))}
           </FormGroup>
         )}
-
-        {q.type === 'radio-text' && (
-          <>
-            <RadioGroup
-              value={value?.choice || ''}
-              onChange={e => onChange({ ...value, choice: e.target.value })}
-            >
-              {q.options.map((opt, i) => (
-                <FormControlLabel key={i} value={opt} control={<Radio />} label={opt} />
-              ))}
-            </RadioGroup>
-            <TextField
-              placeholder="Please provide additional details"
-              fullWidth
-              variant="outlined"
-              size="small"
-              margin="dense"
-              value={value?.text || ''}
-              onChange={e => onChange({ ...value, text: e.target.value })}
-            />
-          </>
-        )}
-
-        {q.type === 'checkbox-text' && (
-          <>
-            <FormGroup row>
-              {q.options.map((opt, i) => (
-                <FormControlLabel
-                  key={i}
-                  control={
-                    <Checkbox
-                      checked={Array.isArray(value?.choices) ? value.choices.includes(opt) : false}
-                      onChange={event => {
-                        const newChoices = Array.isArray(value?.choices) ? [...value.choices] : [];
-                        if (event.target.checked) {
-                          newChoices.push(opt);
-                        } else {
-                          const idx = newChoices.indexOf(opt);
-                          if (idx > -1) newChoices.splice(idx, 1);
-                        }
-                        onChange({ ...value, choices: newChoices });
-                      }}
-                    />
-                  }
-                  label={opt}
-                />
-              ))}
-            </FormGroup>
-            <TextField
-              placeholder="Please provide additional details"
-              fullWidth
-              variant="outlined"
-              size="small"
-              margin="dense"
-              value={value?.text || ''}
-              onChange={e => onChange({ ...value, text: e.target.value })}
-            />
-          </>
-        )}
-
         {q.type === 'date-range' && (
           <Grid container spacing={2} mb={1}>
             <Grid item xs={12} sm={6}>
@@ -215,7 +148,6 @@ const QuestionItem = ({
           </Grid>
         )}
       </Box>
-
       {isAdmin() && (
         <IconButton size="small" onClick={() => onEdit(idx)} aria-label="edit question">
           <EditIcon fontSize="small" />

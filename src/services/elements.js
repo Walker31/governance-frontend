@@ -1,22 +1,23 @@
 // services/elements.js
 import axios from "axios";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001/elements";
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
 /**
- * Fetch purpose data for a given project.
- * @param {string} projectId - The ID of the project.
- * @param {string} token - The authentication token.
- * @returns {Promise<object>} - Purpose data from the API.
+ * Fetch purpose data for a given project (returns an array).
+ * @param {string} projectId
+ * @param {string} token
+ * @returns {Promise<object[]>}
  */
 export const getPurposeData = async (projectId, token) => {
   if (!projectId) throw new Error("projectId is required");
 
   try {
-    const { data } = await axios.get(`${API_URL}/${projectId}`, {
+    const { data } = await axios.get(`${API_URL}/elements/${projectId}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
-    return data;
+    // Ensure array
+    return Array.isArray(data) ? data : data ? [data] : [];
   } catch (error) {
     console.error(`Error fetching purpose data for project ${projectId}:`, error);
     throw error;
@@ -24,13 +25,30 @@ export const getPurposeData = async (projectId, token) => {
 };
 
 /**
- * Save a single purpose element for a given project.
- * @param {string} projectId - The ID of the project.
- * @param {string} category - The category name.
- * @param {string} elementName - The element name.
- * @param {string} token - The authentication token.
- * @returns {Promise<object>} - Response from the API.
+ * Save multiple purpose elements in one call.
+ * @param {string} projectId
+ * @param {{category: string, elementName: string}[]} elements
+ * @param {string} token
+ * @returns {Promise<object>}
  */
+export const savePurposeDataBulk = async (projectId, elements, token) => {
+  if (!projectId) throw new Error("projectId is required");
+  if (!Array.isArray(elements)) throw new Error("elements must be an array");
+
+  try {
+    const { data } = await axios.post(
+      `${API_URL}/elements/bulk`,
+      { projectId, elements },
+      { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+    );
+    return data;
+  } catch (error) {
+    console.error(`Error saving purpose data (bulk) for project ${projectId}:`, error);
+    throw error;
+  }
+};
+
+/** (kept for compatibility) Save a single element — not used by Purpose.jsx now */
 export const savePurposeData = async (projectId, category, elementName, token) => {
   if (!projectId) throw new Error("projectId is required");
   if (!category) throw new Error("category is required");
@@ -38,7 +56,7 @@ export const savePurposeData = async (projectId, category, elementName, token) =
 
   try {
     const { data } = await axios.post(
-      API_URL,
+      `${API_URL}/elements/`,
       { projectId, category, elementName },
       { headers: token ? { Authorization: `Bearer ${token}` } : {} }
     );

@@ -1,49 +1,61 @@
+import React from 'react';
 import LinearProgress from "@mui/material/LinearProgress";
 
-const Overview = () => {
-  // Data for progress bars
+// The component now accepts the 'project' object as a prop
+const Overview = ({ project }) => {
+  // Data for progress bars (remains static for now)
   const euSubcontrols = { completed: 27, total: 100 };
   const euAssessments = { completed: 20, total: 70 };
   const isoClauses = { completed: 2, total: 24 };
   const isoAnnexes = { completed: 4, total: 37 };
-
   // Helper to calculate percentage
   const percent = (completed, total) =>
     total > 0 ? Math.round((completed / total) * 100) : 0;
+  
+  // Helper to format date strings
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Info Cards */}
+      {/* --- Info Cards (Now Dynamic) --- */}
       <div className="flex flex-wrap gap-6">
         <div className="flex gap-6">
           <div className="border border-gray-200 p-4 w-80 rounded-lg bg-white">
-          <div className="text-gray-400 text-sm">Owner</div>
-          <div className="font-semibold">Verifywise Admin</div>
-        </div>
-        <div className="border border-gray-200 p-4 w-80 rounded-lg bg-white">
-          <div className="text-gray-400 text-sm">Last Updated</div>
-          <div className="font-semibold">24 June 2025</div>
-        </div>
-        <div className="border border-gray-200 p-4 w-80 rounded-lg bg-white">
-          <div className="text-gray-400 text-sm">Last Updated by</div>
-          <div className="font-semibold">Verifywise Admin</div>
-        </div>
+            <div className="text-gray-400 text-sm">Owner</div>
+            <div className="font-semibold">{project?.owner?.name || 'N/A'}</div>
+          </div>
+          <div className="border border-gray-200 p-4 w-80 rounded-lg bg-white">
+            <div className="text-gray-400 text-sm">Last Updated</div>
+            <div className="font-semibold">{formatDate(project?.updatedAt)}</div>
+          </div>
+          <div className="border border-gray-200 p-4 w-80 rounded-lg bg-white">
+            <div className="text-gray-400 text-sm">Last Updated by</div>
+            {/* Assuming the owner is the last person to update, as this data isn't in the JSON */}
+            <div className="font-semibold">{project?.owner?.name || 'N/A'}</div>
+          </div>
         </div>
         <div className="flex justify-between gap-12">
           <div className="border border-gray-200 p-4 w-max rounded-lg bg-white">
-          <div className="text-gray-400 text-sm">Goal</div>
-          <div className="">
-            To ensure Compliance with AI governance standards.
+            <div className="text-gray-400 text-sm">Goal</div>
+            {/* Using projectName as the goal, as it's descriptive */}
+            <div className="">{project?.projectName || 'No goal specified.'}</div>
           </div>
-        </div>
-        <div className="border border-gray-200 p-4 w-80 rounded-lg bg-white">
-          <div className="text-gray-400 text-sm">Team Members</div>
-          <div className="">Alice Smith, John Doe</div>
-        </div>
+          <div className="border border-gray-200 p-4 w-80 rounded-lg bg-white">
+            <div className="text-gray-400 text-sm">Team Members</div>
+             {/* This data is not in the JSON, so using a placeholder */}
+            <div className="">No additional members assigned</div>
+          </div>
         </div>
       </div>
 
-      {/* Completion Status */}
+      {/* --- Completion Status (Remains Static) --- */}
       <div className="flex flex-col md:flex-row gap-6">
         {/* EU AI Act */}
         <div className="flex-1">
@@ -153,6 +165,8 @@ const Overview = () => {
       </div>
 
       <hr />
+
+      {/* --- Project Risks (Remains Static) --- */}
       <div className="flex flex-col gap-4">
         <div className="text-xl font-semibold">Project risks</div>
 

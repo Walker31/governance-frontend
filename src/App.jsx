@@ -29,6 +29,7 @@ import RiskManager from "./pages/CyberSecurity Management/Risk Manager/RiskManag
 import Login from "./pages/Login/login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashAlt from "./pages/Dashboard/DahboardAlternate";
+import Inventory from "./pages/Inventory/main";
 
 function AppRoutes() {
   const { user } = useAuth();
@@ -67,6 +68,7 @@ function AppRoutes() {
             <Route path="ai-regulatory-assessment" element={<AIRegulatoryAssessment />} />
             <Route path="cyber-risk-assessment" element={<RiskAssessment />} />
             <Route path="cyber-control-assessment" element={<ControlAssessment />} />
+            <Route path="inventory" element={<Inventory />} />
             <Route path="cyber-risk-manager" element={<RiskManager />} />
             <Route path="cyber-risk-analysis" element={<RiskAnalysis />} />
             <Route path="3passessements" element={<ThirdPartyAssessment />} />

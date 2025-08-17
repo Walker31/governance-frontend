@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingUp, Users, Shield, Award, BarChart3, Eye, Calendar, Download } from "lucide-react";
+import TrustCenterChatbot from "@/components/trustCentreBot";
 
 const TrustCenterInsight = () => {
   const metrics = [
@@ -266,6 +267,7 @@ const TrustCenterInsight = () => {
             </TabsContent>
           </Tabs>
         </main>
+        <TrustCenterChatbot />
     </div>
   );
 };

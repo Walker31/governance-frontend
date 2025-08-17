@@ -2,7 +2,7 @@ import Button from '@mui/material/Button';
 import AddCircleOutlineSharpIcon from '@mui/icons-material/AddCircleOutlineSharp';
 import LinearProgress from '@mui/material/LinearProgress';
 import { useNavigate } from 'react-router-dom';
-import NewProjectModal from './components/NewProjectModal';
+import NewProjectModal from './modals/NewProjectModal';
 import { useState } from 'react';
 
 const Projects = () => {

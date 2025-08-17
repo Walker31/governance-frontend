@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Download, Search, Calendar, Eye, Lock, Globe, Shield, Users, Gavel } from "lucide-react";
+import TrustCenterChatbot from "@/components/trustCentreBot";
 
 const TrustCenterDocuments = () => {
   const policyDocuments = [
@@ -148,6 +149,7 @@ const TrustCenterDocuments = () => {
 
   return (
     <div className="min-h-screen bg-background flex-1">
+      
         <main className="p-6 space-y-6">
           <div className="flex justify-between items-center">
             <div>
@@ -402,7 +404,9 @@ const TrustCenterDocuments = () => {
               </Card>
             </TabsContent>
           </Tabs>
+          
         </main>
+        <TrustCenterChatbot />
     </div>
   );
 };

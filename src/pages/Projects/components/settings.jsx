@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
@@ -14,26 +14,45 @@ import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
-const owners = ["VerifyWise Admin"];
+// These can be fetched from a user directory in a real app
+const owners = ["VerifyWise Admin", "Admin User"];
+const teamMembers = ["Alice Smith", "John Doe", "VerifyWise Admin", "Admin User"];
+
+// Static options
 const regulations = ["ISO 42001", "EU AI Act"];
-const teamMembers = ["Alice Smith", "John Doe", "VerifyWise Admin"];
 const riskLevels = ["High risk", "Medium risk", "Low risk"];
 const highRiskRoles = ["Deployer", "Developer", "Operator"];
 
-const Settings = () => {
-  const [projectTitle, setProjectTitle] = useState("AI Compliance Checker");
-  const [goal, setGoal] = useState("To ensure compliance with AI governance standards");
-  const [owner, setOwner] = useState(owners[0]);
-  const [selectedRegulations, setSelectedRegulations] = useState(regulations);
-  const [startDate, setStartDate] = useState(dayjs("2025-06-24"));
-  const [selectedMembers, setSelectedMembers] = useState(teamMembers);
+
+// The component now accepts the 'project' object as a prop
+const Settings = ({ project }) => {
+  // Initialize state with empty values
+  const [projectTitle, setProjectTitle] = useState("");
+  const [goal, setGoal] = useState("");
+  const [owner, setOwner] = useState("");
+  const [selectedRegulations, setSelectedRegulations] = useState([]);
+  const [startDate, setStartDate] = useState(null);
+  const [selectedMembers, setSelectedMembers] = useState([]);
   const [riskLevel, setRiskLevel] = useState("High risk");
   const [highRiskRole, setHighRiskRole] = useState("Deployer");
 
+  // Use useEffect to populate the form when the project prop is available
+  useEffect(() => {
+    if (project) {
+      console.log(project);
+      setProjectTitle(project.projectId || "");
+      setGoal(project.projectName || "");
+      setOwner(project.owner?.name || "");
+      setStartDate(project.createdAt ? dayjs(project.createdAt) : null);
+      
+      // Keep static values for fields not in the project data
+      setSelectedRegulations(regulations);
+      setSelectedMembers(teamMembers);
+    }
+  }, [project]); // This effect runs when the 'project' prop changes
+
   return (
     <div className="max-w-2xl py-4">
-
-      {/* Form */}
       <form className="flex flex-col gap-6">
         {/* Project Title */}
         <TextField

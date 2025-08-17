@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
 import {
   IconButton,
   Button,
@@ -17,9 +18,18 @@ import {
   Box,
   CircularProgress,
   Alert,
-  Tooltip
+  Tooltip,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  FormLabel,
+  FormHelperText,
+  Container, // Added for better layout
+  Paper,     // Added for the main form surface
+  Typography, // Added for consistent text styling
+  Divider    // Added to separate sections
 } from '@mui/material';
-import QuestionItem from './questionItem';
+import QuestionItem from './QuestionItem';
 import OptionEditor from './optionEditor';
 import { nanoid } from 'nanoid';
 import questionnaireService from '../../services/questionnaireService';
@@ -28,6 +38,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { DEFAULT_PROJECT_ID } from '../../constants/projectDefaults';
 
+// --- Constants remain the same ---
 const GENERAL_QUESTIONS = [
   {
     id: 'requestOwner',
@@ -62,9 +73,10 @@ const GENERAL_QUESTIONS = [
   },
   {
     id: 'dateRange',
-    label: '5. Select a date range for when you would like to start and complete the project?',
-    type: 'daterange',
-    required: true
+    label: '5. What is the date range for when you would like to start and complete the project?',
+    type: 'text',
+    required: true,
+    placeholder: 'e.g., September 2025 - December 31, 2025'
   },
   {
     id: 'delayFactors',
@@ -85,14 +97,27 @@ const SUB_QUESTION_OPTIONS = {
     { value: 'thirdparty-cyber', label: 'Third-party Cybersecurity' }
   ]
 };
-
 const SUB_QUESTION_LABEL = 'Please select the system type:';
+
+const EXAMPLE_RESPONSE = {
+  requestOwner: 'Priya Singh, India',
+  projectType: 'thirdparty',
+  region: 'India, United States, European Union',
+  purpose: 'To automate document screening and risk analysis using artificial intelligence, aiming to improve operational efficiency, compliance, and data-driven insights.',
+  dateRange: 'September 1, 2025 - December 31, 2025',
+  delayFactors: 'Integration complexity, data partner delays, regulatory approval timelines.',
+  subSystemType: 'thirdparty-ai'
+};
+const EXAMPLE_TEMPLATE_ANSWERS = [
+  'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes. We perform annual security audits of all critical third-party partners; evidence can be provided upon request.', 'Yes', 'Yes', 'Annually', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Quarterly', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes'
+];
+
 
 const Questionnaire = () => {
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
 
-  // State for all answers
+  // --- State and logic hooks remain the same ---
   const [responses, setResponses] = useState({});
   const [subSelection, setSubSelection] = useState('');
   const [templateQuestions, setTemplateQuestions] = useState([]);
@@ -104,14 +129,9 @@ const Questionnaire = () => {
   const [editDialog, setEditDialog] = useState({ open: false, index: null });
   const [addDialog, setAddDialog] = useState(false);
   const [editData, setEditData] = useState({});
-  const [newQuestion, setNewQuestion] = useState({
-    type: 'text',
-    label: '',
-    options: []
-  });
+  const [newQuestion, setNewQuestion] = useState({ type: 'text', label: '', options: [] });
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
-  // Load templates on mount
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
@@ -126,33 +146,28 @@ const Questionnaire = () => {
     fetchTemplates();
   }, []);
 
-  // When subSelection changes, load template questions
   useEffect(() => {
     if (!subSelection) {
       setTemplateQuestions([]);
       return;
     }
-    // Map subSelection to templateType
-    let templateType = '';
-    if (subSelection === 'ai-system') templateType = 'AI System';
-    else if (subSelection === 'cybersecurity') templateType = 'Cybersecurity Management System';
-    else if (subSelection === 'thirdparty-ai') templateType = 'Third-party AI System';
-    else if (subSelection === 'thirdparty-cyber') templateType = 'Third-party Cybersecurity System';
-    if (templateType) {
-      const found = templates.find(t => t.templateType === templateType);
+    let currentTemplateType = '';
+    if (subSelection === 'ai-system') currentTemplateType = 'AI System';
+    else if (subSelection === 'cybersecurity') currentTemplateType = 'Cybersecurity Management System';
+    else if (subSelection === 'thirdparty-ai') currentTemplateType = 'Third-party AI System';
+    else if (subSelection === 'thirdparty-cyber') currentTemplateType = 'Third-party Cybersecurity System';
+
+    if (currentTemplateType) {
+      const found = templates.find(t => t.templateType === currentTemplateType);
       if (found && found.questions) {
         setTemplateQuestions(found.questions.map((q, index) => ({
           id: q.id || index + 1,
-          type: q.responseType === 'text' ? 'textarea' :
-                q.responseType === 'numeric' ? 'text' :
-                q.responseType === 'mcq' ? 'radio' :
-                q.responseType === 'msq' ? 'checkbox' :
-                q.responseType === 'boolean' ? 'radio' : 'text',
+          type: 'text',
           label: q.question,
-          options: q.responseType === 'boolean' ? ['Yes', 'No'] : (q.options || []),
-          value: q.responseType === 'checkbox' ? [] : '',
+          options: [],
+          value: '',
           required: q.required !== false,
-          placeholder: q.responseType === 'text' ? 'Enter your answer...' : ''
+          placeholder: 'Enter your answer...'
         })));
       } else {
         setTemplateQuestions([]);
@@ -162,57 +177,51 @@ const Questionnaire = () => {
     }
   }, [subSelection, templates]);
 
-  // Handle general question responses
   const handleGeneralChange = (id, value) => {
     setResponses(prev => ({ ...prev, [id]: value }));
-    // If projectType changes, reset subSelection and template questions
     if (id === 'projectType') {
       setSubSelection('');
       setTemplateQuestions([]);
     }
   };
 
-  // Handle sub-question selection
   const handleSubSelection = (value) => {
     setSubSelection(value);
     setResponses(prev => ({ ...prev, subSystemType: value }));
   };
 
-  // Handle template question responses
   const handleTemplateChange = (id, value) => {
     setResponses(prev => ({ ...prev, [id]: value }));
   };
 
-  // Submission
+  const loadExample = () => {
+    let templateResponseMap = {};
+    templateQuestions.forEach((q, idx) => {
+      templateResponseMap[q.id] = EXAMPLE_TEMPLATE_ANSWERS[idx] || 'Yes';
+    });
+    setResponses({ ...EXAMPLE_RESPONSE, ...templateResponseMap });
+    setSubSelection(EXAMPLE_RESPONSE.subSystemType);
+    setSubmitAttempted(false);
+  };
+
   const handleSubmit = async () => {
     setSubmitAttempted(true);
     try {
       setIsSubmitting(true);
       setError('');
       setSuccess('');
-      // Validate required general questions
       for (const q of GENERAL_QUESTIONS) {
-        if (q.required) {
-          if (q.id === 'dateRange') {
-            if (!responses.startDate || !responses.endDate) {
-              setError('Please answer all required questions before submitting.');
-              setIsSubmitting(false);
-              return;
-            }
-          } else if (!responses[q.id]) {
-            setError('Please answer all required questions before submitting.');
-            setIsSubmitting(false);
-            return;
-          }
+        if (q.required && !responses[q.id]) {
+          setError('Please answer all required questions before submitting.');
+          setIsSubmitting(false);
+          return;
         }
       }
-      // Validate sub-question if projectType is answered
       if (responses.projectType && !subSelection) {
         setError('Please select the system type.');
         setIsSubmitting(false);
         return;
       }
-      // Validate required template questions
       for (const q of templateQuestions) {
         if (q.required && !responses[q.id]) {
           setError('Please answer all required questions before submitting.');
@@ -220,17 +229,21 @@ const Questionnaire = () => {
           return;
         }
       }
-      // Prepare data
+
+      let templateType = '';
+      if (subSelection === 'ai-system') templateType = 'AI System';
+      else if (subSelection === 'cybersecurity') templateType = 'Cybersecurity Management System';
+      else if (subSelection === 'thirdparty-ai') templateType = 'Third-party AI System';
+      else if (subSelection === 'thirdparty-cyber') templateType = 'Third-party Cybersecurity System';
+
       const questionnaireData = {
         questionnaireResponses: responses,
         projectId: DEFAULT_PROJECT_ID,
-        useCaseType: 'human'
+        useCaseType: templateType
       };
       await questionnaireService.processQuestionnaire(questionnaireData);
       setSuccess('Questionnaire submitted successfully! Risk analysis is being generated.');
-      setTimeout(() => {
-        navigate(`/ai-risk-assessment`);
-      }, 2000);
+      setTimeout(() => navigate(`/ai-risk-assessment`), 2000);
     } catch (error) {
       setError(error.message || 'Failed to submit questionnaire. Please try again.');
     } finally {
@@ -238,7 +251,6 @@ const Questionnaire = () => {
     }
   };
 
-  // Edit and add question logic (unchanged)
   const handleEdit = (index) => {
     setEditData({ ...templateQuestions[index] });
     setEditDialog({ open: true, index });
@@ -255,273 +267,194 @@ const Questionnaire = () => {
   };
   const handleAddSave = () => {
     if (!newQuestion.label.trim()) return;
-    setTemplateQuestions([
-      ...templateQuestions,
-      {
-        ...newQuestion,
-        id: nanoid(),
-        options: newQuestion.options || [],
-        value: newQuestion.type === 'checkbox' ? [] : ''
-      }
-    ]);
+    setTemplateQuestions([...templateQuestions, { ...newQuestion, id: nanoid(), options: newQuestion.options || [], value: newQuestion.type === 'checkbox' ? [] : '' }]);
     setAddDialog(false);
   };
 
-  // Compute if all required questions are answered
-  const allGeneralAnswered = GENERAL_QUESTIONS.every(q => {
-    if (!q.required) return true;
-    if (q.id === 'dateRange') {
-      return responses.startDate && responses.endDate;
-    }
-    return responses[q.id];
-  });
+  const allGeneralAnswered = GENERAL_QUESTIONS.every(q => !q.required || !!responses[q.id]);
   const allSubAnswered = !responses.projectType || !!subSelection;
-  const allTemplateAnswered = templateQuestions.every(q => !q.required || responses[q.id]);
+  const allTemplateAnswered = templateQuestions.every(q => !q.required || !!responses[q.id]);
   const allAnswered = allGeneralAnswered && allSubAnswered && allTemplateAnswered;
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
         <CircularProgress />
-      </div>
+      </Box>
     );
   }
 
+  const showSubQuestionWarning = submitAttempted && responses.projectType && !subSelection;
+
   return (
-    <div>
-      <div className="flex gap-3 items-center p-4">
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <Tooltip title="Go back">
           <IconButton onClick={() => navigate(-1)}>
-            <ArrowBackIcon sx={{ color: 'blue' }} />
+            <ArrowBackIcon />
           </IconButton>
         </Tooltip>
-        <div className="font-bold text-lg flex-1">
-          {'AI Use Case Questionnaire'}
-        </div>
+        <Typography variant="h5" component="h1" sx={{ flexGrow: 1, ml: 1 }}>
+          AI Use Case Questionnaire
+        </Typography>
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={loadExample}
+          startIcon={<AutoFixHighIcon />}
+          sx={{
+            mr: 1,
+            borderRadius: 2,
+            fontWeight: 'bold',
+            textTransform: 'none', // Keeps the original casing
+            borderColor: 'secondary.light',
+            '&:hover': {
+              backgroundColor: 'secondary.lighter',
+              borderColor: 'secondary.main',
+            },
+          }}
+        >
+          Load Example
+        </Button>
         {isAdmin() && (
           <IconButton color="primary" onClick={handleAdd} aria-label="add question">
             <AddIcon />
           </IconButton>
         )}
-      </div>
-      <div className="shadow-xl min-h-screen border-1 bg-white p-6 rounded-md mx-auto">
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
-        {success && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            {success}
-          </Alert>
-        )}
+      </Box>
+      <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 } }}>
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+
+        <Typography variant="h6" gutterBottom>General Information</Typography>
+        <Divider sx={{ mb: 3 }} />
+
         {/* General questions */}
-        {GENERAL_QUESTIONS.map((q, idx) => {
-          let showWarning = false;
-          if (submitAttempted && q.required) {
-            if (q.id === 'dateRange') {
-              showWarning = !responses.startDate || !responses.endDate;
-            } else {
-              showWarning = !responses[q.id];
-            }
-          }
+        {GENERAL_QUESTIONS.map((q) => {
+          const showWarning = submitAttempted && q.required && !responses[q.id];
+
           if (q.type === 'radio') {
             return (
-              <div key={q.id} className="mb-6">
-                <label className="block font-medium mb-2">{q.label}</label>
-                {q.options.map(opt => (
-                  <label key={opt.value} className="flex items-center mb-1">
-                    <input
-                      type="radio"
-                      name={q.id}
-                      value={opt.value}
-                      checked={responses[q.id] === opt.value}
-                      onChange={e => handleGeneralChange(q.id, e.target.value)}
-                      className="mr-2"
-                    />
-                    {opt.label}
-                  </label>
-                ))}
-                {showWarning && (
-                  <div style={{ color: 'red', fontSize: '0.95em', marginTop: 2 }}>This question is required.</div>
-                )}
-              </div>
-            );
-          } else if (q.type === 'daterange') {
-            return (
-              <div key={q.id} className="mb-6">
-                <label className="block font-medium mb-2">{q.label}</label>
-                <div className="flex gap-4">
-                  <input
-                    type="date"
-                    value={responses.startDate || ''}
-                    onChange={e => setResponses(prev => ({ ...prev, startDate: e.target.value }))}
-                    className="px-2 py-1 border border-gray-300 rounded"
-                  />
-                  <span className="self-center">to</span>
-                  <input
-                    type="date"
-                    value={responses.endDate || ''}
-                    onChange={e => setResponses(prev => ({ ...prev, endDate: e.target.value }))}
-                    className="px-2 py-1 border border-gray-300 rounded"
-                  />
-                </div>
-                {showWarning && (
-                  <div style={{ color: 'red', fontSize: '0.95em', marginTop: 2 }}>Both dates are required.</div>
-                )}
-              </div>
-            );
-          } else if (q.type === 'textarea') {
-            return (
-              <div key={q.id} className="mb-6">
-                <label className="block font-medium mb-2">{q.label}</label>
-                <textarea
+              <FormControl key={q.id} fullWidth margin="normal" error={showWarning}>
+                <FormLabel>{q.label}</FormLabel>
+                <RadioGroup
+                  name={q.id}
                   value={responses[q.id] || ''}
                   onChange={e => handleGeneralChange(q.id, e.target.value)}
-                  className="w-full px-2 py-1 border border-gray-300 rounded"
-                  rows={3}
-                  placeholder={q.placeholder}
-                />
-                {showWarning && (
-                  <div style={{ color: 'red', fontSize: '0.95em', marginTop: 2 }}>This question is required.</div>
-                )}
-              </div>
+                >
+                  {q.options.map(opt => (
+                    <FormControlLabel key={opt.value} value={opt.value} control={<Radio />} label={opt.label} />
+                  ))}
+                </RadioGroup>
+                {showWarning && <FormHelperText>This question is required.</FormHelperText>}
+              </FormControl>
             );
-          } else {
+          } else { // Handles 'text' and 'textarea'
             return (
-              <div key={q.id} className="mb-6">
-                <label className="block font-medium mb-2">{q.label}</label>
-                <input
-                  type="text"
-                  value={responses[q.id] || ''}
-                  onChange={e => handleGeneralChange(q.id, e.target.value)}
-                  className="w-full px-2 py-1 border border-gray-300 rounded"
-                  placeholder={q.placeholder}
-                />
-                {showWarning && (
-                  <div style={{ color: 'red', fontSize: '0.95em', marginTop: 2 }}>This question is required.</div>
-                )}
-              </div>
+              <TextField
+                key={q.id}
+                fullWidth
+                margin="normal"
+                variant="outlined"
+                label={q.label}
+                placeholder={q.placeholder}
+                multiline={q.type === 'textarea'}
+                rows={q.type === 'textarea' ? 3 : 1}
+                value={responses[q.id] || ''}
+                onChange={e => handleGeneralChange(q.id, e.target.value)}
+                error={showWarning}
+                helperText={showWarning ? 'This field is required.' : ''}
+              />
             );
           }
         })}
         {/* Sub-question (system type) if projectType is selected */}
         {responses.projectType && (
-          <div className="mb-6">
-            <label className="block font-medium mb-2">{SUB_QUESTION_LABEL}</label>
-            {SUB_QUESTION_OPTIONS[responses.projectType].map(opt => (
-              <label key={opt.value} className="flex items-center mb-1">
-                <input
-                  type="radio"
-                  name="subSystemType"
-                  value={opt.value}
-                  checked={subSelection === opt.value}
-                  onChange={e => handleSubSelection(e.target.value)}
-                  className="mr-2"
-                />
-                {opt.label}
-              </label>
-            ))}
-          </div>
+          <FormControl fullWidth margin="normal" error={showSubQuestionWarning}>
+            <FormLabel>{SUB_QUESTION_LABEL}</FormLabel>
+            <RadioGroup
+              name="subSystemType"
+              value={subSelection}
+              onChange={e => handleSubSelection(e.target.value)}
+            >
+              {SUB_QUESTION_OPTIONS[responses.projectType].map(opt => (
+                <FormControlLabel key={opt.value} value={opt.value} control={<Radio />} label={opt.label} />
+              ))}
+            </RadioGroup>
+            {showSubQuestionWarning && <FormHelperText>Please select the system type.</FormHelperText>}
+          </FormControl>
         )}
+
         {/* Template questions */}
-        {templateQuestions.map((q, idx) => {
-          const showWarning = submitAttempted && q.required && !responses[q.id];
-          return (
-            <div key={q.id}>
-              <QuestionItem
-                q={q}
-                idx={idx}
-                onEdit={handleEdit}
-                value={responses[q.id]}
-                onChange={(val) => handleTemplateChange(q.id, val)}
-              />
-              {showWarning && (
-                <div style={{ color: 'red', fontSize: '0.95em', marginTop: 2, marginBottom: 8 }}>This question is required.</div>
-              )}
-            </div>
-          );
-        })}
+        {templateQuestions.length > 0 && (
+          <Box sx={{ mt: 4 }}>
+            <Typography variant="h6" gutterBottom>System Specific Questions</Typography>
+            <Divider sx={{ mb: 2 }} />
+            {templateQuestions.map((q, idx) => {
+              const showWarning = submitAttempted && q.required && !responses[q.id];
+              return (
+                <div key={q.id}>
+                  <QuestionItem
+                    q={q}
+                    idx={idx}
+                    onEdit={handleEdit}
+                    value={responses[q.id]}
+                    onChange={(val) => handleTemplateChange(q.id, val)}
+                  />
+                  {showWarning && (
+                    <FormHelperText error sx={{ ml: 2, mb: 1 }}>This question is required.</FormHelperText>
+                  )}
+                </div>
+              );
+            })}
+          </Box>
+        )}
+
         <Box mt={4} display="flex" justifyContent="center">
-          <Button 
-            variant="contained" 
-            color="primary" 
-            size="medium"
-            sx={{
-              borderRadius: 2,
-              px: 4,
-              py: 1,
-              boxShadow: 1,
-              fontWeight: 600,
-              fontSize: '1rem',
-              textTransform: 'none',
-              transition: 'background 0.2s',
-              '&:hover': {
-                backgroundColor: '#1565c0',
-                boxShadow: 3
-              }
-            }}
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
             onClick={handleSubmit}
             disabled={isSubmitting || !allAnswered}
-            startIcon={isSubmitting ? <CircularProgress size={20} /> : null}
+            startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
+            sx={{ px: 5, py: 1.5, fontWeight: 'bold',borderRadius:10 }}
           >
             {isSubmitting ? 'Processing...' : 'Submit'}
           </Button>
         </Box>
-      </div>
-      {/* Edit Dialog */}
+      </Paper>
+      
+      {/* --- Dialogs remain the same --- */}
       <Dialog open={editDialog.open} onClose={() => setEditDialog({ open: false, index: null })} maxWidth="sm" fullWidth>
         <DialogTitle>Edit Question</DialogTitle>
         <DialogContent>
-          <TextField
-            label="Question"
-            fullWidth
-            value={editData.label || ''}
-            onChange={e => setEditData({ ...editData, label: e.target.value })}
-            margin="normal"
-          />
-          {(editData.type === 'radio' || editData.type === 'checkbox') && (
-            <OptionEditor options={editData.options || []} onChange={opts => setEditData({ ...editData, options: opts })} />
-          )}
+          <TextField label="Question" fullWidth value={editData.label || ''} onChange={e => setEditData({ ...editData, label: e.target.value })} margin="normal" />
+          {(editData.type === 'radio' || editData.type === 'checkbox') && (<OptionEditor options={editData.options || []} onChange={opts => setEditData({ ...editData, options: opts })} />)}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditDialog({ open: false, index: null })}>Cancel</Button>
           <Button onClick={handleEditSave} variant="contained">Save</Button>
         </DialogActions>
       </Dialog>
-      {/* Add Dialog */}
       <Dialog open={addDialog} onClose={() => setAddDialog(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Add New Question</DialogTitle>
         <DialogContent>
-          <TextField
-            label="Question"
-            fullWidth
-            value={newQuestion.label}
-            onChange={e => setNewQuestion({ ...newQuestion, label: e.target.value })}
-            margin="normal"
-          />
+          <TextField label="Question" fullWidth value={newQuestion.label} onChange={e => setNewQuestion({ ...newQuestion, label: e.target.value })} margin="normal" />
           <FormControl fullWidth margin="normal">
             <InputLabel>Type</InputLabel>
-            <Select
-              value={newQuestion.type}
-              label="Type"
-              onChange={e => setNewQuestion({ ...newQuestion, type: e.target.value, options: [] })}
-            >
-              {['text','textarea','radio','checkbox'].map(type => (
-                <MenuItem key={type} value={type}>{type}</MenuItem>
-              ))}
+            <Select value={newQuestion.type} label="Type" onChange={e => setNewQuestion({ ...newQuestion, type: e.target.value, options: [] })}>
+              {['text', 'textarea', 'radio', 'checkbox'].map(type => (<MenuItem key={type} value={type}>{type}</MenuItem>))}
             </Select>
           </FormControl>
-          {(newQuestion.type === 'radio' || newQuestion.type === 'checkbox') && (
-            <OptionEditor options={newQuestion.options || []} onChange={opts => setNewQuestion({ ...newQuestion, options: opts })} />
-          )}
+          {(newQuestion.type === 'radio' || newQuestion.type === 'checkbox') && (<OptionEditor options={newQuestion.options || []} onChange={opts => setNewQuestion({ ...newQuestion, options: opts })} />)}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setAddDialog(false)}>Cancel</Button>
           <Button onClick={handleAddSave} variant="contained">Add</Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </Container>
   );
 };
 
