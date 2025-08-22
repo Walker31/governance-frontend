@@ -1,7 +1,9 @@
 // services/elements.js
 import axios from "axios";
+import { getBackendUrl } from "@/config/env";   // ✅ centralized env handling
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+// ✅ Normalize base URL for elements API
+const API_URL = getBackendUrl("/elements");
 
 /**
  * Fetch purpose data for a given project (returns an array).
@@ -13,10 +15,9 @@ export const getPurposeData = async (projectId, token) => {
   if (!projectId) throw new Error("projectId is required");
 
   try {
-    const { data } = await axios.get(`${API_URL}/elements/${projectId}`, {
+    const { data } = await axios.get(`${API_URL}/${projectId}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
-    // Ensure array
     return Array.isArray(data) ? data : data ? [data] : [];
   } catch (error) {
     console.error(`Error fetching purpose data for project ${projectId}:`, error);
@@ -37,7 +38,7 @@ export const savePurposeDataBulk = async (projectId, elements, token) => {
 
   try {
     const { data } = await axios.post(
-      `${API_URL}/elements/bulk`,
+      `${API_URL}/bulk`,
       { projectId, elements },
       { headers: token ? { Authorization: `Bearer ${token}` } : {} }
     );
@@ -56,7 +57,7 @@ export const savePurposeData = async (projectId, category, elementName, token) =
 
   try {
     const { data } = await axios.post(
-      `${API_URL}/elements/`,
+      `${API_URL}/`,
       { projectId, category, elementName },
       { headers: token ? { Authorization: `Bearer ${token}` } : {} }
     );

@@ -1,8 +1,10 @@
+// services/projects.js
 import axios from 'axios';
+import { getBackendUrl } from '@/config/env';  // ✅ centralized env handler
 
 // Create a reusable Axios instance with a base URL
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3001',
+  baseURL: getBackendUrl(""),   // ✅ consistent with other services
 });
 
 /**
@@ -12,11 +14,8 @@ const apiClient = axios.create({
  */
 export const getProjects = async (token) => {
   try {
-    // Use the apiClient instance and relative path
     const response = await apiClient.get('/projects', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     return response.data;
   } catch (error) {
@@ -33,11 +32,8 @@ export const getProjects = async (token) => {
  */
 export const getProjectDetails = async (projectId, token) => {
   try {
-    // Use the apiClient instance and a dynamic path
     const response = await apiClient.get(`/projects/${projectId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     return response.data;
   } catch (error) {

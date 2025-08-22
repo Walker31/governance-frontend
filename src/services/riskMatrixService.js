@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { DEFAULT_PROJECT_ID } from '../constants/projectDefaults';
 import { getBackendUrl } from '@/config/env';
 
 // Create axios instance

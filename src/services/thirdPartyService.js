@@ -1,8 +1,9 @@
 // services/thirdparty.js
 import axios from "axios";
+import { getBackendUrl } from "@/config/env";  // ✅ centralized env handler
 
-const API_URL =
-  process.env.REACT_APP_API_URL || "http://localhost:3001/thirdparty";
+// Base URL for thirdparty endpoints (slash-safe)
+const API_URL = getBackendUrl("/thirdparty");
 
 /**
  * Get all Third Parties for a given project
@@ -19,10 +20,7 @@ export const getThirdParties = async (projectId, token) => {
     });
     return Array.isArray(data) ? data : data ? [data] : [];
   } catch (error) {
-    console.error(
-      `Error fetching third parties for project ${projectId}:`,
-      error
-    );
+    console.error(`Error fetching third parties for project ${projectId}:`, error);
     throw error;
   }
 };

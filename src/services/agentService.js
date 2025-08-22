@@ -9,35 +9,60 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to add auth token
+// Request interceptor to add auth token + log
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // 🔍 Log the outgoing request
+    console.log("➡️ [REQUEST]", {
+      url: config.url,
+      method: config.method,
+      headers: config.headers,
+      data: config.data
+    });
+
     return config;
   },
   (error) => {
+    console.error("❌ [REQUEST ERROR]", error);
     return Promise.reject(error);
   }
 );
 
-// Response interceptor to handle errors
+// Response interceptor to log
 api.interceptors.response.use(
   (response) => {
+    // ✅ Log the response
+    console.log("⬅️ [RESPONSE]", {
+      url: response.config.url,
+      status: response.status,
+      data: response.data
+    });
     return response;
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid, clear storage
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.reload();
     }
+
+    // ❌ Log the response error
+    console.error("❌ [RESPONSE ERROR]", {
+      url: error.config?.url,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+
     return Promise.reject(error);
   }
 );
+
 
 class AgentService {
   // ========================================
