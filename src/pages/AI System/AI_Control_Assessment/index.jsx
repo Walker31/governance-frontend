@@ -101,7 +101,7 @@ const AIControlAssessment = () => {
         const params = { page, limit };
         if (status && status !== "all") params.status = status;
 
-        const result = await controlService.getAllControls(params);
+        const result = await controlService.getControlsBySystemType('AI',params);
 
         setControls(result.controls || []);
       } catch (e) {

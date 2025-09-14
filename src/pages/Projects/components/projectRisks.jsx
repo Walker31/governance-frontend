@@ -120,7 +120,7 @@ const ProjectRisks = ({ projectId }) => {
   const handleAddRisk = async (newRisk) => {
     try {
       await riskMatrixService.addRisk(projectId, newRisk);
-      fetchProjectRisks(); // refresh table after adding
+      fetchProjectRisks();
     } catch (err) {
       console.error("Error adding new risk:", err);
     }
@@ -179,7 +179,6 @@ const ProjectRisks = ({ projectId }) => {
               </tr>
             ) : (
               risks.map((risk, idx) => (
-                console.log(risk) ||
                 <tr key={idx} className="border-b last:border-0">
                   <td className="px-4 py-3 font-medium">{risk.id}</td>
                   <td className="px-4 py-3 font-medium">{risk.name}</td>

@@ -4,7 +4,7 @@ import { getBackendUrl } from '@/config/env';
 // Axios instance with baseURL and JSON headers
 const api = axios.create({
   // The base path for all control-related requests is now '/controls'
-  baseURL: getBackendUrl('/controls'), 
+  baseURL: getBackendUrl('/controls'),
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -34,11 +34,10 @@ api.interceptors.response.use(
 class ControlAssessmentService {
   /**
    * Store multiple controls after an agent response.
-   * @param {Object} data - The payload, typically { parsedControls: [...] }.
+   * @param {Object} data - The payload for bulk creation.
    */
   async storeControls(data) {
     try {
-      // Endpoint is now POST /controls/
       const response = await api.post('/', data);
       return response.data;
     } catch (error) {
@@ -47,17 +46,49 @@ class ControlAssessmentService {
   }
 
   /**
-   * Get all control assessments.
+   * Get all control assessments with pagination.
+   * @param {Object} params - Optional parameters like { page, limit }.
    */
-  async getAllControls() {
+  async getAllControls(params = {}) {
     try {
-      // Endpoint is now GET /controls/
-      const response = await api.get('/');
+      const queryParams = new URLSearchParams();
+      if (params.page) queryParams.append('page', params.page);
+      if (params.limit) queryParams.append('limit', params.limit);
+
+      const response = await api.get(`/?${queryParams.toString()}`);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.error || 'Failed to fetch control assessments');
     }
   }
+
+  // =========================================================================
+  // NEW METHOD: Get controls by high-level system type (AI or Cybersecurity)
+  // =========================================================================
+  /**
+   * Get controls by high-level system type with pagination.
+   * @param {string} type - The system type, either 'AI' or 'Cybersecurity'.
+   * @param {Object} params - Optional parameters like { page, limit }.
+   */
+  async getControlsBySystemType(type, params = {}) {
+    try {
+      if (!type) {
+        throw new Error("System type ('AI' or 'Cybersecurity') is required.");
+      }
+      const queryParams = new URLSearchParams();
+
+      queryParams.append('type', type);
+      if (params.page) queryParams.append('page', params.page);
+      if (params.limit) queryParams.append('limit', params.limit);
+
+      // The baseURL is already '/controls', so we just call the sub-path
+      const response = await api.get(`/type?${queryParams.toString()}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch controls by system type');
+    }
+  }
+
 
   /**
    * Update a control by its unique ID.
@@ -66,7 +97,6 @@ class ControlAssessmentService {
    */
   async updateControl(id, updateData) {
     try {
-      // Endpoint is now PUT /controls/:id
       const response = await api.put(`/${id}`, updateData);
       return response.data;
     } catch (error) {
@@ -80,19 +110,12 @@ class ControlAssessmentService {
    */
   async deleteControl(id) {
     try {
-      // Endpoint is now DELETE /controls/:id
       const response = await api.delete(`/${id}`);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.error || 'Failed to delete control');
     }
   }
-
-  // NOTE: The following methods have been removed as their corresponding
-  // backend endpoints no longer exist in the new, simplified API structure:
-  // - getControlsByAssessment
-  // - getControlsBySession
-  // - getControlsByProject
 }
 
 export default new ControlAssessmentService();

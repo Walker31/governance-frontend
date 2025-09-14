@@ -98,7 +98,8 @@ const AIRiskAssessment = () => {
   const fetchRiskMatrixResults = async (params = {}) => {
     try {
       setLoading(true);
-      const response = await riskMatrixService.getAllRisks({
+      const response = await riskMatrixService.getRisksBySystemType(
+        'AI',{
         page: params.page || pagination.page,
         limit: params.limit || pagination.limit,
         search: params.search || searchQuery,

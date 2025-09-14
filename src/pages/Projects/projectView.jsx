@@ -88,7 +88,7 @@ const ProjectView = () => {
   return (
     <div>
       <Typography variant="h4" component="h1" fontWeight="bold">
-        {project?.projectName || 'Project View'}
+        {project?.projectId || 'Project View'}
       </Typography>
       <Typography color="text.secondary" sx={{ mb: 3 }}>
         {project?.goal || 'This project includes all the governance process status.'}
