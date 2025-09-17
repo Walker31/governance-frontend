@@ -82,12 +82,6 @@ const Sidebar = ({ open }) => {
         {/* Existing entries */}
 
         {/* Existing entries */}
-        <SidebarItem
-          icon={<AutoAwesomeMotionIcon />}
-          label="Inventory"
-          to="/inventory"
-          open={open}
-        />
 
         <SidebarItem
           icon={<Users />}

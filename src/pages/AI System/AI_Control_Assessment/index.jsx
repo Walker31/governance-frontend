@@ -101,9 +101,10 @@ const AIControlAssessment = () => {
         const params = { page, limit };
         if (status && status !== "all") params.status = status;
 
-        const result = await controlService.getControlsBySystemType('AI',params);
+        const result = await controlService.getAllControls(params);
+        console.log(result);
 
-        setControls(result.controls || []);
+        setControls(result || []);
       } catch (e) {
         setError(e.message || "Failed to load controls");
         setControls([]);

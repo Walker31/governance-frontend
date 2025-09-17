@@ -99,9 +99,9 @@ const ControlAssessment = () => {
         if (status && status !== "all") params.status = status;
 
         // Fetching 'Cybersecurity' controls for this component
-        const result = await controlService.getControlsBySystemType('Cybersecurity', params);
+        const result = await controlService.getAllControls(params);
 
-        setControls(result.controls || []);
+        setControls(result || []);
       } catch (e) {
         setError(e.message || "Failed to load controls");
         setControls([]);

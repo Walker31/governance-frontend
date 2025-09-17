@@ -1,8 +1,9 @@
 // File: Questionnaire.jsx
-import { useState, useEffect } from 'react';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import AddIcon from '@mui/icons-material/Add';
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
+import { useState, useEffect } from "react";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import AddIcon from "@mui/icons-material/Add";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
+import EditIcon from "@mui/icons-material/Edit"; // Added for edit functionality
 import {
   IconButton,
   Button,
@@ -24,112 +25,261 @@ import {
   Radio,
   FormLabel,
   FormHelperText,
-  Container, // Added for better layout
-  Paper,     // Added for the main form surface
-  Typography, // Added for consistent text styling
-  Divider    // Added to separate sections
-} from '@mui/material';
-import QuestionItem from './questionItem';
-import OptionEditor from './optionEditor';
-import { nanoid } from 'nanoid';
-import questionnaireService from '../../services/questionnaireService';
-import templateService from '../../services/templateService';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { DEFAULT_PROJECT_ID } from '../../constants/projectDefaults';
+  Container,
+  Paper,
+  Typography,
+  Divider,
+} from "@mui/material";
+// QuestionItem is no longer needed as rendering logic is moved into this component
+import OptionEditor from "./optionEditor";
+import { nanoid } from "nanoid";
+import questionnaireService from "../../services/questionnaireService";
+import templateService from "../../services/templateService";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { DEFAULT_PROJECT_ID } from "../../constants/projectDefaults";
 
-// --- Constants remain the same ---
+// --- General Questions remain the same ---
 const GENERAL_QUESTIONS = [
   {
-    id: 'requestOwner',
-    label: '1. Please enter your name or the name of the person for whom you are submitting this request and the country in which the request owner is located?',
-    type: 'text',
+    id: "requestOwner",
+    label:
+      "1. Please enter your name or the name of the person for whom you are submitting this request and the country in which the request owner is located?",
+    type: "text",
     required: true,
-    placeholder: 'Name, country...'
+    placeholder: "Name, country...",
   },
   {
-    id: 'projectType',
-    label: '2. Is this project internal to our organization or does it involve any third parties?',
-    type: 'radio',
+    id: "projectType",
+    label:
+      "2. Is this project internal to our organization or does it involve any third parties?",
+    type: "radio",
     required: true,
     options: [
-      { value: 'internal', label: 'Developing a product in-house' },
-      { value: 'thirdparty', label: 'Adopting/integrating third party AI system' }
-    ]
+      { value: "internal", label: "Developing a product in-house" },
+      {
+        value: "thirdparty",
+        label: "Adopting/integrating third party AI system",
+      },
+    ],
   },
   {
-    id: 'region',
-    label: '3. From which regions do you need data for your use-case?',
-    type: 'text',
+    id: "region",
+    label: "3. From which regions do you need data for your use-case?",
+    type: "text",
     required: true,
-    placeholder: 'List regions...'
+    placeholder: "List regions...",
   },
   {
-    id: 'purpose',
-    label: '4. What is the intended purpose of your system?',
-    type: 'textarea',
+    id: "purpose",
+    label: "4. What is the intended purpose of your system?",
+    type: "textarea",
     required: true,
-    placeholder: 'Describe the purpose...'
+    placeholder: "Describe the purpose...",
   },
   {
-    id: 'dateRange',
-    label: '5. What is the date range for when you would like to start and complete the project?',
-    type: 'text',
+    id: "dateRange",
+    label:
+      "5. What is the date range for when you would like to start and complete the project?",
+    type: "text",
     required: true,
-    placeholder: 'e.g., September 2025 - December 31, 2025'
+    placeholder: "e.g., September 2025 - December 31, 2025",
   },
   {
-    id: 'delayFactors',
-    label: '6. Are there any factors that might extend your project timeline?',
-    type: 'textarea',
+    id: "delayFactors",
+    label: "6. Are there any factors that might extend your project timeline?",
+    type: "textarea",
     required: false,
-    placeholder: 'Describe any potential delays...'
-  }
+    placeholder: "Describe any potential delays...",
+  },
 ];
 
 const SUB_QUESTION_OPTIONS = {
   internal: [
-    { value: 'ai-system', label: 'AI-System' },
-    { value: 'cybersecurity', label: 'Cybersecurity Management system' }
+    { value: "ai-system", label: "AI-System" },
+    { value: "cybersecurity", label: "Cybersecurity Management system" },
   ],
   thirdparty: [
-    { value: 'thirdparty-ai', label: 'Third-party AI-System' },
-    { value: 'thirdparty-cyber', label: 'Third-party Cybersecurity' }
-  ]
+    { value: "thirdparty-ai", label: "Third-party AI-System" },
+    { value: "thirdparty-cyber", label: "Third-party Cybersecurity" },
+  ],
 };
-const SUB_QUESTION_LABEL = 'Please select the system type:';
+const SUB_QUESTION_LABEL = "7. Please select the system type:";
 
-const EXAMPLE_RESPONSE = {
-  requestOwner: 'Priya Singh, India',
-  projectType: 'thirdparty',
-  region: 'India, United States, European Union',
-  purpose: 'To automate document screening and risk analysis using artificial intelligence, aiming to improve operational efficiency, compliance, and data-driven insights.',
-  dateRange: 'September 1, 2025 - December 31, 2025',
-  delayFactors: 'Integration complexity, data partner delays, regulatory approval timelines.',
-  subSystemType: 'thirdparty-ai'
+// --- Four distinct example data sets ---
+const EXAMPLE_DATA = {
+  "thirdparty-ai": {
+    general: {
+      requestOwner: "Priya Singh, India",
+      projectType: "thirdparty",
+      region: "India, United States, European Union",
+      purpose:
+        "To automate document screening and risk analysis using a third-party artificial intelligence platform, aiming to improve operational efficiency and compliance.",
+      dateRange: "September 1, 2025 - December 31, 2025",
+      delayFactors:
+        "Integration complexity with our existing systems, potential delays from the data partner, and regulatory approval timelines.",
+      subSystemType: "thirdparty-ai",
+    },
+    answers: [
+      "We use advanced encryption for models at rest and in transit, coupled with strict access controls and regular vulnerability scanning.",
+      "Yes, we have a 'human-in-the-loop' protocol that allows our compliance team to manually review and override any high-impact AI decisions before they are finalized.",
+      "Yes",
+      "Yes",
+      "We provide comprehensive API documentation, detailed model cards, and interactive SHAP value visualizations to ensure transparency for all stakeholders.",
+      "Yes",
+      "We employ a multi-layered approach including data provenance checks, statistical anomaly detection, and adversarial sample detection to ensure data integrity.",
+      "Yes",
+      "We have a dedicated AI incident response plan with a 2-hour notification SLA for clients in case of any security or performance incident.",
+      "We use fairness metrics like Equalized Odds and Demographic Parity, tested against benchmark datasets such as Aequitas, before any model is deployed in a high-risk domain.",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "All sensitive data is protected using AES-256 encryption at rest and TLS 1.3 in transit. We also apply k-anonymization techniques for analytics.",
+      "Yes",
+      "We utilize input sanitization libraries to block malicious code and content filters to validate that outputs are appropriate and on-topic.",
+    ],
+  },
+  "internal-ai": {
+    general: {
+      requestOwner: "Rohan Verma, India",
+      projectType: "internal",
+      region: "India",
+      purpose:
+        "To develop an in-house predictive maintenance model for our manufacturing equipment to reduce downtime and optimize repair schedules.",
+      dateRange: "October 1, 2025 - March 31, 2026",
+      delayFactors:
+        "Availability of historical sensor data and initial model training time.",
+      subSystemType: "ai-system",
+    },
+    answers: [
+      "Proprietary LSTM-based model developed internally.",
+      "Licensed under internal corporate IP policy, available on our intranet.",
+      "No",
+      "Model architecture and data flow diagrams are available on our internal Confluence page.",
+      "The model was fine-tuned on a 5-year dataset from our primary production line. Evaluation was done using Mean Absolute Error (MAE) and R-squared metrics.",
+      "Data is not retained post-inference. Logs are kept for 72 hours for debugging.",
+      "A formal risk analysis identified model drift as the primary risk. Mitigation includes continuous monitoring and a manual override system for maintenance alerts.",
+      "Effectiveness testing showed a 25% reduction in unplanned downtime in a simulated environment.",
+      "Pre-deployment testing included adversarial checks on sensor data inputs and bias analysis to ensure no specific machine type was unfairly penalized.",
+      "We use SHAP (SHapley Additive exPlanations) values to explain each prediction, providing transparency to maintenance engineers.",
+      "Model performance (MAE) is monitored in real-time on a Grafana dashboard. The model is recalibrated quarterly.",
+      "Data is sourced directly from our own IoT sensors on the factory floor. They are trusted and calibrated regularly.",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+    ],
+  },
+  "internal-cyber": {
+    general: {
+      requestOwner: "Anjali Sharma, India",
+      projectType: "internal",
+      region: "Global",
+      purpose:
+        "To implement a new internal Security Information and Event Management (SIEM) system to enhance our threat detection and response capabilities.",
+      dateRange: "September 15, 2025 - January 31, 2026",
+      delayFactors:
+        "Integration with legacy systems and training of security operations staff.",
+      subSystemType: "cybersecurity",
+    },
+    answers: [
+      "Yes, we used the STRIDE threat modeling framework. Risks identified included data poisoning and unauthorized access, mitigated through strict access controls and log integrity checks.",
+      "Sensitive data is encrypted at rest using AES-256 and in transit with TLS 1.3. Access is strictly controlled via our Privileged Access Management (PAM) system.",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Security incidents are detected via automated alerts, reported through our ITSM tool, and escalated according to a tiered response matrix.",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+    ],
+  },
+  "thirdparty-cyber": {
+    general: {
+      requestOwner: "Vikram Reddy, India",
+      projectType: "thirdparty",
+      region: "North America, Europe",
+      purpose:
+        "To integrate a third-party Cloud Access Security Broker (CASB) to secure our corporate cloud applications and enforce data loss prevention policies.",
+      dateRange: "November 1, 2025 - February 28, 2026",
+      delayFactors:
+        "Contract negotiations and complexity of policy migration from our old system.",
+      subSystemType: "thirdparty-cyber",
+    },
+    answers: [
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "We perform annual security audits of all critical third-party partners; evidence can be provided upon request under NDA.",
+      "Yes",
+      "Yes",
+      "Annually",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Quarterly",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+    ],
+  },
 };
-const EXAMPLE_TEMPLATE_ANSWERS = [
-  'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes. We perform annual security audits of all critical third-party partners; evidence can be provided upon request.', 'Yes', 'Yes', 'Annually', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Quarterly', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes'
-];
-
 
 const Questionnaire = () => {
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
-
-  // --- State and logic hooks remain the same ---
   const [responses, setResponses] = useState({});
-  const [subSelection, setSubSelection] = useState('');
+  const [subSelection, setSubSelection] = useState("");
   const [templateQuestions, setTemplateQuestions] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [editDialog, setEditDialog] = useState({ open: false, index: null });
   const [addDialog, setAddDialog] = useState(false);
   const [editData, setEditData] = useState({});
-  const [newQuestion, setNewQuestion] = useState({ type: 'text', label: '', options: [] });
+  const [newQuestion, setNewQuestion] = useState({
+    type: "text",
+    label: "",
+    options: [],
+  });
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
   useEffect(() => {
@@ -138,6 +288,7 @@ const Questionnaire = () => {
         const data = await templateService.getTemplates();
         setTemplates(Array.isArray(data) ? data : []);
       } catch (err) {
+        setError("Failed to load assessment templates.");
         setTemplates([]);
       } finally {
         setLoading(false);
@@ -151,24 +302,27 @@ const Questionnaire = () => {
       setTemplateQuestions([]);
       return;
     }
-    let currentTemplateType = '';
-    if (subSelection === 'ai-system') currentTemplateType = 'AI System';
-    else if (subSelection === 'cybersecurity') currentTemplateType = 'Cybersecurity Management System';
-    else if (subSelection === 'thirdparty-ai') currentTemplateType = 'Third-party AI System';
-    else if (subSelection === 'thirdparty-cyber') currentTemplateType = 'Third-party Cybersecurity System';
+    const templateTypeMap = {
+      "ai-system": "AI System",
+      cybersecurity: "Cybersecurity Management System",
+      "thirdparty-ai": "Third-party AI System",
+      "thirdparty-cyber": "Third-party Cybersecurity System",
+    };
+    const currentTemplateType = templateTypeMap[subSelection];
 
     if (currentTemplateType) {
-      const found = templates.find(t => t.templateType === currentTemplateType);
+      const found = templates.find(
+        (t) => t.templateType === currentTemplateType
+      );
       if (found && found.questions) {
-        setTemplateQuestions(found.questions.map((q, index) => ({
-          id: q.id || index + 1,
-          type: 'text',
-          label: q.question,
-          options: [],
-          value: '',
-          required: q.required !== false,
-          placeholder: 'Enter your answer...'
-        })));
+        setTemplateQuestions(
+          found.questions.map((q) => ({
+            id: q._id,
+            questionText: q.questionText,
+            responseType: q.responseType, // 'text' or 'boolean'
+            isRequired: q.isRequired,
+          }))
+        );
       } else {
         setTemplateQuestions([]);
       }
@@ -178,79 +332,116 @@ const Questionnaire = () => {
   }, [subSelection, templates]);
 
   const handleGeneralChange = (id, value) => {
-    setResponses(prev => ({ ...prev, [id]: value }));
-    if (id === 'projectType') {
-      setSubSelection('');
+    setResponses((prev) => ({ ...prev, [id]: value }));
+    if (id === "projectType") {
+      setSubSelection("");
+      // Clear previous template answers
+      const templateKeys = templateQuestions.map((q) => q.id);
+      const newResponses = { ...responses };
+      templateKeys.forEach((key) => delete newResponses[key]);
+      newResponses[id] = value;
+      setResponses(newResponses);
       setTemplateQuestions([]);
     }
   };
 
   const handleSubSelection = (value) => {
     setSubSelection(value);
-    setResponses(prev => ({ ...prev, subSystemType: value }));
+    setResponses((prev) => ({ ...prev, subSystemType: value }));
   };
 
   const handleTemplateChange = (id, value) => {
-    setResponses(prev => ({ ...prev, [id]: value }));
+    setResponses((prev) => ({ ...prev, [id]: value }));
   };
 
-  const loadExample = () => {
-    let templateResponseMap = {};
-    templateQuestions.forEach((q, idx) => {
-      templateResponseMap[q.id] = EXAMPLE_TEMPLATE_ANSWERS[idx] || 'Yes';
-    });
-    setResponses({ ...EXAMPLE_RESPONSE, ...templateResponseMap });
-    setSubSelection(EXAMPLE_RESPONSE.subSystemType);
+  const loadExample = (type) => {
+    const example = EXAMPLE_DATA[type];
+    if (!example) return;
+
+    // Set general info and trigger sub-selection, which loads the questions via useEffect
+    setResponses(example.general);
+    setSubSelection(example.general.subSystemType);
+
+    // Find the correct template to map answers to the correct question IDs
+    const templateTypeMap = {
+      "ai-system": "AI System",
+      cybersecurity: "Cybersecurity Management System",
+      "thirdparty-ai": "Third-party AI System",
+      "thirdparty-cyber": "Third-party Cybersecurity System",
+    };
+    const currentTemplateType = templateTypeMap[example.general.subSystemType];
+    const template = templates.find(
+      (t) => t.templateType === currentTemplateType
+    );
+
+    if (template && template.questions) {
+      const templateResponseMap = {};
+      template.questions.forEach((q, index) => {
+        const questionId = q._id // Use the same unique ID
+        templateResponseMap[questionId] = example.answers[index] || "";
+      });
+      // Set the specific answers for the loaded template questions
+      setResponses((prev) => ({ ...prev, ...templateResponseMap }));
+    }
     setSubmitAttempted(false);
   };
 
   const handleSubmit = async () => {
     setSubmitAttempted(true);
-    try {
-      setIsSubmitting(true);
-      setError('');
-      setSuccess('');
-      for (const q of GENERAL_QUESTIONS) {
-        if (q.required && !responses[q.id]) {
-          setError('Please answer all required questions before submitting.');
-          setIsSubmitting(false);
-          return;
-        }
-      }
-      if (responses.projectType && !subSelection) {
-        setError('Please select the system type.');
-        setIsSubmitting(false);
-        return;
-      }
-      for (const q of templateQuestions) {
-        if (q.required && !responses[q.id]) {
-          setError('Please answer all required questions before submitting.');
-          setIsSubmitting(false);
-          return;
-        }
-      }
+    setError("");
+    setSuccess("");
 
-      let templateType = '';
-      if (subSelection === 'ai-system') templateType = 'AI System';
-      else if (subSelection === 'cybersecurity') templateType = 'Cybersecurity Management System';
-      else if (subSelection === 'thirdparty-ai') templateType = 'Third-party AI System';
-      else if (subSelection === 'thirdparty-cyber') templateType = 'Third-party Cybersecurity System';
+    // --- Validation logic ---
+    const requiredGeneral = GENERAL_QUESTIONS.filter((q) => q.required).every(
+      (q) => responses[q.id]
+    );
+    if (!requiredGeneral) {
+      setError("Please answer all required general questions.");
+      return;
+    }
+    if (responses.projectType && !subSelection) {
+      setError("Please select the system type.");
+      return;
+    }
+    const requiredTemplate = templateQuestions
+      .filter((q) => q.isRequired)
+      .every((q) => responses[q.id]);
+    if (!requiredTemplate) {
+      setError("Please answer all required system-specific questions.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const templateTypeMap = {
+        "ai-system": "AI System",
+        cybersecurity: "Cybersecurity Management System",
+        "thirdparty-ai": "Third-party AI System",
+        "thirdparty-cyber": "Third-party Cybersecurity System",
+      };
+      const useCaseType = templateTypeMap[subSelection];
 
       const questionnaireData = {
         questionnaireResponses: responses,
         projectId: DEFAULT_PROJECT_ID,
-        useCaseType: templateType
+        useCaseType: useCaseType,
       };
+
       await questionnaireService.processQuestionnaire(questionnaireData);
-      setSuccess('Questionnaire submitted successfully! Risk analysis is being generated.');
+      setSuccess(
+        "Questionnaire submitted successfully! Risk analysis is being generated."
+      );
       setTimeout(() => navigate(`/ai-risk-assessment`), 2000);
-    } catch (error) {
-      setError(error.message || 'Failed to submit questionnaire. Please try again.');
+    } catch (err) {
+      setError(
+        err.message || "Failed to submit questionnaire. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // --- Admin Dialog Handlers remain the same ---
   const handleEdit = (index) => {
     setEditData({ ...templateQuestions[index] });
     setEditDialog({ open: true, index });
@@ -262,33 +453,46 @@ const Questionnaire = () => {
     setEditDialog({ open: false, index: null });
   };
   const handleAdd = () => {
-    setNewQuestion({ type: 'text', label: '', options: [] });
+    setNewQuestion({ type: "text", label: "", options: [] });
     setAddDialog(true);
   };
   const handleAddSave = () => {
     if (!newQuestion.label.trim()) return;
-    setTemplateQuestions([...templateQuestions, { ...newQuestion, id: nanoid(), options: newQuestion.options || [], value: newQuestion.type === 'checkbox' ? [] : '' }]);
+    setTemplateQuestions([
+      ...templateQuestions,
+      {
+        ...newQuestion,
+        id: nanoid(),
+        options: newQuestion.options || [],
+        value: newQuestion.type === "checkbox" ? [] : "",
+      },
+    ]);
     setAddDialog(false);
   };
 
-  const allGeneralAnswered = GENERAL_QUESTIONS.every(q => !q.required || !!responses[q.id]);
-  const allSubAnswered = !responses.projectType || !!subSelection;
-  const allTemplateAnswered = templateQuestions.every(q => !q.required || !!responses[q.id]);
-  const allAnswered = allGeneralAnswered && allSubAnswered && allTemplateAnswered;
-
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
   }
 
-  const showSubQuestionWarning = submitAttempted && responses.projectType && !subSelection;
+  const showSubQuestionWarning =
+    submitAttempted && responses.projectType && !subSelection;
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+      <Box
+        sx={{ display: "flex", alignItems: "center", mb: 2, flexWrap: "wrap" }}
+      >
         <Tooltip title="Go back">
           <IconButton onClick={() => navigate(-1)}>
             <ArrowBackIcon />
@@ -297,114 +501,231 @@ const Questionnaire = () => {
         <Typography variant="h5" component="h1" sx={{ flexGrow: 1, ml: 1 }}>
           AI Use Case Questionnaire
         </Typography>
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={loadExample}
-          startIcon={<AutoFixHighIcon />}
-          sx={{
-            mr: 1,
-            borderRadius: 2,
-            fontWeight: 'bold',
-            textTransform: 'none', // Keeps the original casing
-            borderColor: 'secondary.light',
-            '&:hover': {
-              backgroundColor: 'secondary.lighter',
-              borderColor: 'secondary.main',
-            },
-          }}
-        >
-          Load Example
-        </Button>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+          <Tooltip title="Load example for an internal AI system">
+            <Button
+              size="small"
+              variant="outlined"
+              color="secondary"
+              onClick={() => loadExample("internal-ai")}
+              startIcon={<AutoFixHighIcon />}
+            >
+              Internal AI
+            </Button>
+          </Tooltip>
+          <Tooltip title="Load example for an internal Cybersecurity system">
+            <Button
+              size="small"
+              variant="outlined"
+              color="secondary"
+              onClick={() => loadExample("internal-cyber")}
+              startIcon={<AutoFixHighIcon />}
+            >
+              Internal Cyber
+            </Button>
+          </Tooltip>
+          <Tooltip title="Load example for a third-party AI system">
+            <Button
+              size="small"
+              variant="outlined"
+              color="secondary"
+              onClick={() => loadExample("thirdparty-ai")}
+              startIcon={<AutoFixHighIcon />}
+            >
+              3rd-Party AI
+            </Button>
+          </Tooltip>
+          <Tooltip title="Load example for a third-party Cybersecurity system">
+            <Button
+              size="small"
+              variant="outlined"
+              color="secondary"
+              onClick={() => loadExample("thirdparty-cyber")}
+              startIcon={<AutoFixHighIcon />}
+            >
+              3rd-Party Cyber
+            </Button>
+          </Tooltip>
+        </Box>
         {isAdmin() && (
-          <IconButton color="primary" onClick={handleAdd} aria-label="add question">
-            <AddIcon />
-          </IconButton>
+          <Tooltip title="Add New Question">
+            <IconButton
+              color="primary"
+              onClick={handleAdd}
+              aria-label="add question"
+            >
+              <AddIcon />
+            </IconButton>
+          </Tooltip>
         )}
       </Box>
       <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 } }}>
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-        {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+        {success && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {success}
+          </Alert>
+        )}
 
-        <Typography variant="h6" gutterBottom>General Information</Typography>
+        <Typography variant="h6" gutterBottom>
+          General Information
+        </Typography>
         <Divider sx={{ mb: 3 }} />
 
-        {/* General questions */}
         {GENERAL_QUESTIONS.map((q) => {
           const showWarning = submitAttempted && q.required && !responses[q.id];
-
-          if (q.type === 'radio') {
+          if (q.type === "radio") {
             return (
-              <FormControl key={q.id} fullWidth margin="normal" error={showWarning}>
-                <FormLabel>{q.label}</FormLabel>
-                <RadioGroup
-                  name={q.id}
-                  value={responses[q.id] || ''}
-                  onChange={e => handleGeneralChange(q.id, e.target.value)}
-                >
-                  {q.options.map(opt => (
-                    <FormControlLabel key={opt.value} value={opt.value} control={<Radio />} label={opt.label} />
-                  ))}
-                </RadioGroup>
-                {showWarning && <FormHelperText>This question is required.</FormHelperText>}
-              </FormControl>
-            );
-          } else { // Handles 'text' and 'textarea'
-            return (
-              <TextField
+              <FormControl
                 key={q.id}
                 fullWidth
                 margin="normal"
-                variant="outlined"
-                label={q.label}
-                placeholder={q.placeholder}
-                multiline={q.type === 'textarea'}
-                rows={q.type === 'textarea' ? 3 : 1}
-                value={responses[q.id] || ''}
-                onChange={e => handleGeneralChange(q.id, e.target.value)}
                 error={showWarning}
-                helperText={showWarning ? 'This field is required.' : ''}
-              />
+              >
+                <FormLabel>{q.label}</FormLabel>
+                <RadioGroup
+                  name={q.id}
+                  value={responses[q.id] || ""}
+                  onChange={(e) => handleGeneralChange(q.id, e.target.value)}
+                >
+                  {q.options.map((opt) => (
+                    <FormControlLabel
+                      key={opt.value}
+                      value={opt.value}
+                      control={<Radio />}
+                      label={opt.label}
+                    />
+                  ))}
+                </RadioGroup>
+                {showWarning && (
+                  <FormHelperText>This question is required.</FormHelperText>
+                )}
+              </FormControl>
             );
           }
+          return (
+            <TextField
+              key={q.id}
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              label={q.label}
+              placeholder={q.placeholder}
+              multiline={q.type === "textarea"}
+              rows={q.type === "textarea" ? 3 : 1}
+              value={responses[q.id] || ""}
+              onChange={(e) => handleGeneralChange(q.id, e.target.value)}
+              error={showWarning}
+              helperText={showWarning ? "This field is required." : ""}
+            />
+          );
         })}
-        {/* Sub-question (system type) if projectType is selected */}
+
         {responses.projectType && (
           <FormControl fullWidth margin="normal" error={showSubQuestionWarning}>
             <FormLabel>{SUB_QUESTION_LABEL}</FormLabel>
             <RadioGroup
               name="subSystemType"
               value={subSelection}
-              onChange={e => handleSubSelection(e.target.value)}
+              onChange={(e) => handleSubSelection(e.target.value)}
             >
-              {SUB_QUESTION_OPTIONS[responses.projectType].map(opt => (
-                <FormControlLabel key={opt.value} value={opt.value} control={<Radio />} label={opt.label} />
+              {SUB_QUESTION_OPTIONS[responses.projectType].map((opt) => (
+                <FormControlLabel
+                  key={opt.value}
+                  value={opt.value}
+                  control={<Radio />}
+                  label={opt.label}
+                />
               ))}
             </RadioGroup>
-            {showSubQuestionWarning && <FormHelperText>Please select the system type.</FormHelperText>}
+            {showSubQuestionWarning && (
+              <FormHelperText>Please select the system type.</FormHelperText>
+            )}
           </FormControl>
         )}
 
-        {/* Template questions */}
         {templateQuestions.length > 0 && (
           <Box sx={{ mt: 4 }}>
-            <Typography variant="h6" gutterBottom>System Specific Questions</Typography>
+            <Typography variant="h6" gutterBottom>
+              System Specific Questions
+            </Typography>
             <Divider sx={{ mb: 2 }} />
             {templateQuestions.map((q, idx) => {
-              const showWarning = submitAttempted && q.required && !responses[q.id];
+              const showWarning =
+                submitAttempted && q.isRequired && !responses[q.id];
+              const questionNumber =
+                GENERAL_QUESTIONS.length + (responses.projectType ? 2 : 1);
               return (
-                <div key={q.id}>
-                  <QuestionItem
-                    q={q}
-                    idx={idx}
-                    onEdit={handleEdit}
-                    value={responses[q.id]}
-                    onChange={(val) => handleTemplateChange(q.id, val)}
-                  />
-                  {showWarning && (
-                    <FormHelperText error sx={{ ml: 2, mb: 1 }}>This question is required.</FormHelperText>
+                <Box key={q.id} sx={{ my: 3 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <FormLabel
+                      component="legend"
+                      sx={{ flexGrow: 1, fontWeight: "medium" }}
+                    >
+                      {`${questionNumber}.${idx + 1} ${q.questionText}`}
+                    </FormLabel>
+                    {isAdmin() && (
+                      <Tooltip title="Edit Question">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleEdit(idx)}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </Box>
+                  {q.responseType === "boolean" ? (
+                    <FormControl error={showWarning} sx={{ pl: 1, mt: 1 }}>
+                      <RadioGroup
+                        row
+                        value={responses[q.id] || ""}
+                        onChange={(e) =>
+                          handleTemplateChange(q.id, e.target.value)
+                        }
+                      >
+                        <FormControlLabel
+                          value="Yes"
+                          control={<Radio />}
+                          label="Yes"
+                        />
+                        <FormControlLabel
+                          value="No"
+                          control={<Radio />}
+                          label="No"
+                        />
+                      </RadioGroup>
+                    </FormControl>
+                  ) : (
+                    <TextField
+                      fullWidth
+                      variant="outlined"
+                      multiline
+                      rows={2}
+                      value={responses[q.id] || ""}
+                      onChange={(e) =>
+                        handleTemplateChange(q.id, e.target.value)
+                      }
+                      error={showWarning}
+                      sx={{ mt: 1 }}
+                    />
                   )}
-                </div>
+                  {showWarning && (
+                    <FormHelperText error sx={{ pl: 1 }}>
+                      This question is required.
+                    </FormHelperText>
+                  )}
+                </Box>
               );
             })}
           </Box>
@@ -416,42 +737,105 @@ const Questionnaire = () => {
             color="primary"
             size="large"
             onClick={handleSubmit}
-            disabled={isSubmitting || !allAnswered}
-            startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
-            sx={{ px: 5, py: 1.5, fontWeight: 'bold',borderRadius:10 }}
+            disabled={isSubmitting}
+            startIcon={
+              isSubmitting ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : null
+            }
+            sx={{ px: 5, py: 1.5, fontWeight: "bold", borderRadius: 10 }}
           >
-            {isSubmitting ? 'Processing...' : 'Submit'}
+            {isSubmitting ? "Processing..." : "Submit"}
           </Button>
         </Box>
       </Paper>
-      
-      {/* --- Dialogs remain the same --- */}
-      <Dialog open={editDialog.open} onClose={() => setEditDialog({ open: false, index: null })} maxWidth="sm" fullWidth>
+
+      {/* --- Dialogs for Admin remain functional --- */}
+      <Dialog
+        open={editDialog.open}
+        onClose={() => setEditDialog({ open: false, index: null })}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Edit Question</DialogTitle>
         <DialogContent>
-          <TextField label="Question" fullWidth value={editData.label || ''} onChange={e => setEditData({ ...editData, label: e.target.value })} margin="normal" />
-          {(editData.type === 'radio' || editData.type === 'checkbox') && (<OptionEditor options={editData.options || []} onChange={opts => setEditData({ ...editData, options: opts })} />)}
+          <TextField
+            label="Question"
+            fullWidth
+            value={editData.label || ""}
+            onChange={(e) =>
+              setEditData({ ...editData, label: e.target.value })
+            }
+            margin="normal"
+          />
+          {(editData.type === "radio" || editData.type === "checkbox") && (
+            <OptionEditor
+              options={editData.options || []}
+              onChange={(opts) => setEditData({ ...editData, options: opts })}
+            />
+          )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setEditDialog({ open: false, index: null })}>Cancel</Button>
-          <Button onClick={handleEditSave} variant="contained">Save</Button>
+          <Button onClick={() => setEditDialog({ open: false, index: null })}>
+            Cancel
+          </Button>
+          <Button onClick={handleEditSave} variant="contained">
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={addDialog} onClose={() => setAddDialog(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={addDialog}
+        onClose={() => setAddDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Add New Question</DialogTitle>
         <DialogContent>
-          <TextField label="Question" fullWidth value={newQuestion.label} onChange={e => setNewQuestion({ ...newQuestion, label: e.target.value })} margin="normal" />
+          <TextField
+            label="Question"
+            fullWidth
+            value={newQuestion.label}
+            onChange={(e) =>
+              setNewQuestion({ ...newQuestion, label: e.target.value })
+            }
+            margin="normal"
+          />
           <FormControl fullWidth margin="normal">
             <InputLabel>Type</InputLabel>
-            <Select value={newQuestion.type} label="Type" onChange={e => setNewQuestion({ ...newQuestion, type: e.target.value, options: [] })}>
-              {['text', 'textarea', 'radio', 'checkbox'].map(type => (<MenuItem key={type} value={type}>{type}</MenuItem>))}
+            <Select
+              value={newQuestion.type}
+              label="Type"
+              onChange={(e) =>
+                setNewQuestion({
+                  ...newQuestion,
+                  type: e.target.value,
+                  options: [],
+                })
+              }
+            >
+              {["text", "textarea", "radio", "checkbox"].map((type) => (
+                <MenuItem key={type} value={type}>
+                  {type}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
-          {(newQuestion.type === 'radio' || newQuestion.type === 'checkbox') && (<OptionEditor options={newQuestion.options || []} onChange={opts => setNewQuestion({ ...newQuestion, options: opts })} />)}
+          {(newQuestion.type === "radio" ||
+            newQuestion.type === "checkbox") && (
+            <OptionEditor
+              options={newQuestion.options || []}
+              onChange={(opts) =>
+                setNewQuestion({ ...newQuestion, options: opts })
+              }
+            />
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setAddDialog(false)}>Cancel</Button>
-          <Button onClick={handleAddSave} variant="contained">Add</Button>
+          <Button onClick={handleAddSave} variant="contained">
+            Add
+          </Button>
         </DialogActions>
       </Dialog>
     </Container>
